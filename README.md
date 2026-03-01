@@ -21,7 +21,12 @@
 | 11 | Microsoft 365 Groups & Teams | [11-m365-groups-teams.md](docs/11-m365-groups-teams.md) |
 | 12 | Calendar Issues & Resolutions | [12-calendar-issues-resolutions.md](docs/12-calendar-issues-resolutions.md) |
 | 13 | Email Encryption & IRM | [13-email-encryption.md](docs/13-email-encryption.md) |
-| 14 | PowerShell Scripts | [scripts/](scripts/) |
+| 14 | M365 Licensing Issues | [14-m365-licensing-issues.md](docs/14-m365-licensing-issues.md) |
+| 15 | Mailbox Archive Issues | [15-mailbox-archive-issues.md](docs/15-mailbox-archive-issues.md) |
+| 16 | Outlook Issues & Resolutions | [16-outlook-issues-resolutions.md](docs/16-outlook-issues-resolutions.md) |
+| 17 | Security & Compliance in Exchange | [17-security-compliance-exchange.md](docs/17-security-compliance-exchange.md) |
+| 18 | Exchange Online Mailbox Auditing | [18-exchange-mailbox-auditing.md](docs/18-exchange-mailbox-auditing.md) |
+| 19 | PowerShell Scripts | [scripts/](scripts/) |
 
 ---
 
@@ -58,6 +63,32 @@
 | Shared mailbox cannot open / send encrypted email | [13 - Email Encryption](docs/13-email-encryption.md) |
 | IRM Protect button missing in Outlook / OWA | [13 - Email Encryption](docs/13-email-encryption.md) |
 | Enable IRM / AIP for Exchange Online tenant | [13 - Email Encryption](docs/13-email-encryption.md) |
+| How many devices can access a shared mailbox? | [14 - M365 Licensing](docs/14-m365-licensing-issues.md) |
+| Bulk assign / remove licenses via PowerShell | [14 - M365 Licensing](docs/14-m365-licensing-issues.md) |
+| Office 5-device limit confusion | [14 - M365 Licensing](docs/14-m365-licensing-issues.md) |
+| Recoverable Items quota exceeded / 554 5.2.0 error | [15 - Mailbox Archive](docs/15-mailbox-archive-issues.md) |
+| Archive mailbox not moving items / Managed Folder Assistant | [15 - Mailbox Archive](docs/15-mailbox-archive-issues.md) |
+| Enable auto-expanding archive | [15 - Mailbox Archive](docs/15-mailbox-archive-issues.md) |
+| Start-ManagedFolderAssistant RPC error | [15 - Mailbox Archive](docs/15-mailbox-archive-issues.md) |
+| Litigation hold setup and bulk operations | [15 - Mailbox Archive](docs/15-mailbox-archive-issues.md) |
+| Outlook hangs / slow to open emails | [16 - Outlook Issues](docs/16-outlook-issues-resolutions.md) |
+| Outlook not showing new emails (desktop only) | [16 - Outlook Issues](docs/16-outlook-issues-resolutions.md) |
+| Outlook connectivity test failing / ADAL WAM errors | [16 - Outlook Issues](docs/16-outlook-issues-resolutions.md) |
+| Outlook prompting for password repeatedly | [16 - Outlook Issues](docs/16-outlook-issues-resolutions.md) |
+| Outlook shows Disconnected — profile reset needed | [16 - Outlook Issues](docs/16-outlook-issues-resolutions.md) |
+| Sent emails saving to user's Sent Items instead of shared mailbox | [16 - Outlook Issues](docs/16-outlook-issues-resolutions.md) |
+| Outlook creates 100,000+ contacts automatically | [16 - Outlook Issues](docs/16-outlook-issues-resolutions.md) |
+| Outlook 500 Unexpected Error in EAC / OWA | [16 - Outlook Issues](docs/16-outlook-issues-resolutions.md) |
+| Compromised account — tenant blocked from sending email | [17 - Security & Compliance](docs/17-security-compliance-exchange.md) |
+| Configure DKIM for a custom domain | [17 - Security & Compliance](docs/17-security-compliance-exchange.md) |
+| Quarantined email stuck as "Needs review" | [17 - Security & Compliance](docs/17-security-compliance-exchange.md) |
+| SMTP legacy device cannot authenticate (Security Defaults) | [17 - Security & Compliance](docs/17-security-compliance-exchange.md) |
+| Cannot delete retention policy in Microsoft Purview | [17 - Security & Compliance](docs/17-security-compliance-exchange.md) |
+| Skip spam filtering for specific domains from same IP | [17 - Security & Compliance](docs/17-security-compliance-exchange.md) |
+| Enable mailbox audit logging for all users | [18 - Mailbox Auditing](docs/18-exchange-mailbox-auditing.md) |
+| Who accessed a mailbox? Non-owner access report | [18 - Mailbox Auditing](docs/18-exchange-mailbox-auditing.md) |
+| Export mailbox audit logs | [18 - Mailbox Auditing](docs/18-exchange-mailbox-auditing.md) |
+| Search Unified Audit Log via PowerShell | [18 - Mailbox Auditing](docs/18-exchange-mailbox-auditing.md) |
 
 ---
 
