@@ -19,7 +19,8 @@
 | 9 | GAL & Offline Address Book | [09-gal-oab.md](docs/09-gal-oab.md) |
 | 10 | Outlook & OWA Issues | [10-outlook-owa.md](docs/10-outlook-owa.md) |
 | 11 | Microsoft 365 Groups & Teams | [11-m365-groups-teams.md](docs/11-m365-groups-teams.md) |
-| 12 | PowerShell Scripts | [scripts/](scripts/) |
+| 12 | Calendar Issues & Resolutions | [12-calendar-issues-resolutions.md](docs/12-calendar-issues-resolutions.md) |
+| 13 | PowerShell Scripts | [scripts/](scripts/) |
 
 ---
 
@@ -42,6 +43,13 @@
 | GAL / OAB not updating | [09 - GAL & OAB](docs/09-gal-oab.md) |
 | Outlook signature, OWA redirect, auto-reply | [10 - Outlook & OWA](docs/10-outlook-owa.md) |
 | M365 Group not showing in Outlook | [11 - M365 Groups & Teams](docs/11-m365-groups-teams.md) |
+| Calendar invites going to wrong user | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
+| Meeting room allows double bookings | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
+| Calendar change notifications going to Deleted Items | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
+| Corrupted calendar delegation / cannot accept invites | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
+| Cancel all meetings for a departing user | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
+| Repeating meeting invitations sent daily | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
+| Share org-wide calendar with all users | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
 
 ---
 
