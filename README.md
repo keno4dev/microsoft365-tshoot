@@ -1,6 +1,6 @@
 # Microsoft 365 Troubleshooting Knowledge Base
 
-> A curated reference repository built from real-world case resolutions during my tenure as a **Technical Support Engineer at Microsoft**, specializing in the **Microsoft 365 SaaS** platform — with a strong focus on Exchange Online, Identity, Compliance, and Power Platform.
+> A curated reference repository built from real-world case resolutions during my tenure as a **Technical Support Engineer at Microsoft**, specializing in the **Microsoft 365 SaaS** platform — with a strong focus on Exchange Online, Identity, Compliance, Teams and SharePoint Online.
 
 ---
 
