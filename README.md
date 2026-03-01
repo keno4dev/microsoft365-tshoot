@@ -20,7 +20,8 @@
 | 10 | Outlook & OWA Issues | [10-outlook-owa.md](docs/10-outlook-owa.md) |
 | 11 | Microsoft 365 Groups & Teams | [11-m365-groups-teams.md](docs/11-m365-groups-teams.md) |
 | 12 | Calendar Issues & Resolutions | [12-calendar-issues-resolutions.md](docs/12-calendar-issues-resolutions.md) |
-| 13 | PowerShell Scripts | [scripts/](scripts/) |
+| 13 | Email Encryption & IRM | [13-email-encryption.md](docs/13-email-encryption.md) |
+| 14 | PowerShell Scripts | [scripts/](scripts/) |
 
 ---
 
@@ -50,6 +51,13 @@
 | Cancel all meetings for a departing user | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
 | Repeating meeting invitations sent daily | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
 | Share org-wide calendar with all users | [12 - Calendar Issues](docs/12-calendar-issues-resolutions.md) |
+| Cannot open encrypted email from external sender (Outlook 2019) | [13 - Email Encryption](docs/13-email-encryption.md) |
+| Desktop Outlook cannot encrypt — OWA works fine | [13 - Email Encryption](docs/13-email-encryption.md) |
+| "Your machine isn't setup for IRM" error | [13 - Email Encryption](docs/13-email-encryption.md) |
+| S/MIME certificate not found error in OWA | [13 - Email Encryption](docs/13-email-encryption.md) |
+| Shared mailbox cannot open / send encrypted email | [13 - Email Encryption](docs/13-email-encryption.md) |
+| IRM Protect button missing in Outlook / OWA | [13 - Email Encryption](docs/13-email-encryption.md) |
+| Enable IRM / AIP for Exchange Online tenant | [13 - Email Encryption](docs/13-email-encryption.md) |
 
 ---
 
