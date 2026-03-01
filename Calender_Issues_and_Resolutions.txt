@@ -1,0 +1,273 @@
+Title: Manage calendar of Private Group
+Desc: 
+emporiaallstaff@mhaKS.onmicrosoft.com is a 'private group' actively being used for email. Is it possible to disable the calendar portion or at least restrict permissions to use this resource as a calendar? I have not been able to get to a place where I can do this.
+ 
+Resolution:
+Creates a new mailbox policy
+	· New-OwaMailboxPolicy –Name “Disable Calendar Policy”
+Sets the calendar for all mailboxes under the policy to be off
+	· Set-OwaMailboxPolicy –Identity “Disable Calendar Policy” –CalendarEnabled $false
+Applies the policy to the mailbox in question
+	· Set-CASMailbox –Identity emporiaallstaff@mhaKS.onmicrosoft.com –OwaMailboxPolicy “Disable Calendar Policy”
+ 
+ 
+From < https://beta.rave.office.net/cases/302ba53a-c784-4211-922b-f3e1ce40742d> 
+ 
+ While changing the organizer is still a pipe-dream, administrators can now cancel all meetings using the Remove-CalendarEvents cmdlet. This cmdlet will remove the meeting from the calendars of meeting resources and attendees.
+ 
+To cancel all future meetings as of Today, the syntax is
+Remove-CalendarEvents -Identity alias@domain.com -CancelOrganizedMeetings
+ 
+To cancel meeting within a date range, such as for someone who took a sudden leave of absence, you’d use the following cmdlet.
+Remove-CalendarEvents -Identity alias@domain.com -CancelOrganizedMeetings -QueryStartDate 8-1-2017 -QueryWindowInDays 90
+ 
+From < https://www.slipstick.com/office-365/office-365-exchangeremove-calendarevents/> 
+
+
+
+Title: Calendar event changes notification automatically being deleted
+Desc: 
+Multiple users are reporting that when an organizer makes a change or adds files to an existing calendar event that the notifications of change are being sent directly to Deleted Items in Outlook and not to the Inbox. We have made the settings changes regarding this issue through Outlook (see attachment) but the issue persists.
+  
+Resolutions:
+ 
+· Get-OrganizationConfig | Select VisibleMeetingUpdateProperties
+· Set-OrganizationConfig -VisibleMeetingUpdateProperties AllProperties
+
+
+
+Title: Calendar invites are going to another user.
+Desc: When you send an calendar invite to sandi@tseafuels.com its going to mellisa@tseafuels.com. I turned off the send as function but still not working. 
+ 
+Resolutions:  I was able to resolve the issue with the setting under the users delegated calendar access in the OWA page
+ 
+From < https://beta.rave.office.net/cases/30695747-aae3-47cb-9428-7c2da2ac9d22> 
+
+Title: Notifications Missing For Calendar Changes
+Desc: Tabatha and Jennifer both have Edit access to each other's calendars. When Jennifer updates Tabatha's calendar, Tabatha gets a notification letting her know that a change was made to her calendar. When Tabatha edits Jennifer's calendar, however, Jennifer is NOT receiving the edit notifications. I tried removing Tabatha from Jennifer's calendar and then reading her, but this did not resolve the issue.
+ 
+· Remove-MailboxFolderPermission -Identity kim@contoso.com:\Calendar -ResetDelegateUserCollection
+ 
+ 
+Title: Sharing calendars with others
+Desc: our user BrandiH@ryther.org delegate edit permission on her calendar with her co-worker. her con-worker can create the calendar event for her. however, they cannot edit / delete their created event or BrandiH created event. even, Brandi edit her calendar. her co-worker cannot see the update
+ 
+Resolutions:
+· CX could not edit the affected user's calendar: BrandiH@ryther.org and she couldn't also edit her own calendar 
+· Check the recoverable items folder and noticed that the folder is already 100GB limit 
+· Also noticed that the discovery hold is 99.3GB as well 
+· Educated CX on the impact of the 100GB on the recoverable item folder which can cause issues to the calendar 
+· CX confirmed he can enable the archive for recoverable items, but he would have to connect with his manager and the end-user before moving the items to the recoverable items archive 
+· CX confirmed they had migrated the user with the content from on-prem and the user is on org-wide hold
+· CX confirmed that this is what he wanted to know, why she couldn't delete, edit or create some calendar invites 
+· Shared the documentation to enable archive and recoverable items retention tag and policy 
+· CX gave consent to close the ticket pending the end user's approval to move her content to the archive 
+ 
+ 
+Title: changing calendar booking in advance range
+Desc: I need to change the booking in advance from 180 to 1080 days for a few users calendars. 
+ 
+Resolutions: 
+· Open Exchange Powershell
+	· Connect-EXOPSSession OR Connect-ExchangeOnline
+	· Set-CalendarProcessing -Identity user@domain.com -BookingWindowInDays 1080
+ 
+ 
+ 
+Title: Meeting Invitation Repeating
+Desc: E-Mail from User "I’m still having the same issue as reported a few months ago. I created a recurrent daily calendar event with a Webex meeting attached to it and every single day all (or the majority) of the recipients are receiving the invite coming from my email address, even though they already accepted or rejected it multiple times. People are getting frustrated with this involuntary spam in their mailboxes daily."
+Resolutions: 
+· https://learn.microsoft.com/en-us/purview/ediscovery-search-for-and-delete-email-messages
+· https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell?view=exchange-ps
+· To create and run a Content search, you have to be a member of the eDiscovery Manager role group or be assigned the Compliance Search role in the Microsoft Purview compliance portal. To delete messages, you have to be a member of the Organization Management role group or be assigned the Search And Purge role in the compliance portal. Ensure you have the right permissions before proceeding with the steps below:
+o Import-Module ExchangeOnlineManagement
+o Connect-IPPSSession -UserPrincipalName navin@contoso.onmicrosoft.com
+· Create a Content Search using the Meeting subject as a criteria
+· After the search completes, run the following PowerShell commands:
+			o Start-ComplianceSearch -Identity "name of search"
+			o New-ComplianceSearchAction -SearchName "name of search" -Purge -PurgeType HardDelete
+· Alternatively, use PowerShell to purge the calendar items after searching.
+	o Create a new Content search. In this example, you know that the subject of calendar item you want to delete that has  “Urgent action needed” in the subject:
+			o $Search=New-ComplianceSearch -Name "Calendar Items to Purge" -ExchangeLocation All -ContentMatchQuery '(Subject:"Daily Ops/Mx Briefing")'
+			o $Search=New-ComplianceSearch -Name "Calendar Items to Purge" -ExchangeLocation All -ContentMatchQuery '(From:user@contoso.com) AND (Subject:"Update your account information")'
+			o $Search=New-ComplianceSearch -Name "Calendar Items to Purge" -ExchangeLocation All -ContentMatchQuery '(Received:4/13/2016..4/14/2016) AND (Subject:'Action required')'
+			o Start-ComplianceSearch -Identity $Search.Identity
+	· Now you can purge the messages to remove them from users' inboxes. If you want the messages to be placed in Recoverable Items, choose a soft delete. To mark them for removal from the database, choose a hard delete:
+	o New-ComplianceSearchAction -SearchName "Calendar Items to Purge" -Purge -PurgeType SoftDelete
+	o New-ComplianceSearchAction -SearchName "Calendar Items to Purge" -Purge -PurgeType HardDelete
+· Disconnect-ExchangeOnline -Confirm:$false
+
+
+
+
+	
+How to Create and Share a Calendar to all Users in Microsoft 365
+Follow the steps below:
+	
+	o Create a Shared Mailbox. Remember, a shared mailbox has a shared calendar.
+	o Give Full Access permissions for that shared mailbox to only those who would be adding and editing events in the calendar
+	o Log in to the Shared Mailbox in Outlook on the web and navigate to the Settings > Calendar > Shared calendar.
+	o 
+	o After clicking on Publish as shown above, Copy one of the provided links and send it out to all those users who you want to have access to the Shared calendar.
+	o On the recipient's end, they should click on Add calendar in OWA and select the Subscribe from web option. Paste in the link copied earlier, give the new calendar a name, select a color for the calendar and click on Import. 
+	o Note that this calendar would only be visible on the Outlook desktop app and Outlook on the web. Microsoft Teams loads only the default calendar for a user.
+	o If however, you want to add a shared calendar in Teams, then you are allow to add a calendar to a channel by following the steps below:
+		○ Copy the calendar shared URL. 
+		○ Now open Microsoft Teams. 
+		○ Click on “Teams” and then choose a channel of that team. 
+		○ Click on “Add a tab,” illustrated by a plus symbol. 
+		○ Select “Websites” options. Input the name of the tab and the calendar URL. 
+		○ Click on “Save” to complete the process
+	o There you are now able to view a shared calendar on Teams
+
+
+How to Delete Calendar Events Without Notifying Attendees
+
+NB: This can be achieved by deleting the meeting items from the organizer mailbox using Content Search
+ 
+To create and run a Content search, you have to be a member of the eDiscovery Manager role group or be assigned the Compliance Search role in the Microsoft Purview compliance portal. To delete messages, you have to be a member of the Organization Management role group or be assigned the Search And Purge role in the compliance portal. Ensure you have the right permissions before proceeding with the steps below:
+
+Meanwhile after testing this can also be achieved at admin level. For reference below are the commands:
+1. Connect- Exchange online PowerShell
+2. First search and export the results to a folder named search_result in admin's mailbox:
+	• Search-Mailbox -Identity user@contoso -SearchQuery 'kind:meetings AND Subject:"meeting title"' -TargetMailbox "admin@contoso.com" -TargetFolder "search_result" -LogLevel Full -Logonly -SearchDumpster:$false
+3. If in the results you can see the correct meeting item located in the calendar folder, you may use this command to remove it:
+	• Search-Mailbox -Identity user@contoso -SearchQuery 'kind:meetings AND Subject:"meeting title"' -Deletecontent
+
+NB: The Search-Mailbox cmdlet is now deprecated, hence may not work in some instances and need to be replaced with New-ComplianceSearch as shown below
+
+https://learn.microsoft.com/en-us/purview/ediscovery-search-for-and-delete-email-messages
+
+
+Example below:
+
+New-ComplianceSearch -Name "John.Frank" -ExchangeLocation "xxxxxxxxx@thirdroadmgmt.com" -ContentMatchQuery 'Subject:"xxxxxxxxxxxxxxxxxx"'
+
+New-ComplianceSearch -Name "John.Frank" -ExchangeLocation  "xxxxxx@thirdroadmgmt.com" -ContentMatchQuery 'Subject:"John & Rachel 1 on 1 Check-In"' -LogLevel Full
+
+New-ComplianceSearch -Name "John.Frank" -ExchangeLocation  "xxxxx@thirdroadmgmt.com" -ContentMatchQuery 'Subject:"John & Rachel 1 on 1 Check-In"' -LogLevel Basic
+
+Start-ComplianceSearch -Identity "John.Frank"
+
+New-ComplianceSearchAction -SearchName John.Frank -Purge -PurgeType HardDelete
+
+
+For more information, see the links below.
+https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell?view=exchange-ps
+https://learn.microsoft.com/en-us/purview/ediscovery-search-for-and-delete-email-messages
+https://learn.microsoft.com/en-us/exchange/troubleshoot/compliance/search-mailbox-cmdlet-fails
+
+
+https://learn.microsoft.com/en-us/exchange/troubleshoot/compliance/search-mailbox-cmdlet-fails
+https://learn.microsoft.com/en-us/powershell/module/exchange/new-compliancesearch?view=exchange-ps
+
+
+Summary of all required steps below here.
+
+Launch your PowerShell as Administrator and proceed as follows:
+
+Step 1: Load the Exchange Online PowerShell module
+Import-Module ExchangeOnlineManagement
+
+Step 2: Connect to Security & Compliance PowerShell
+Connect-IPPSSession -UserPrincipalName navin@contoso.com
+
+Step 3: Create a Content Search to find the message to delete
+New-ComplianceSearch -Name <search_name> -ExchangeLocation mailbox1@contoso.com -ContentMatchQuery 'Subject:"Quarterly Results"' -LogLevel Full
+
+See example below to modify for your use-case:
+New-ComplianceSearch -Name "KenoOkula" -ExchangeLocation "keno@s2y6j.onmicrosoft.com" -ContentMatchQuery 'Subject:"Compliance Search Action"'
+
+Step 4: Start the content search that matches the search criteria in the step 3 above
+Start-ComplianceSearch -Identity "KenoOkula"
+
+Step 5: Delete the content that matches the search criteria in the step 3 above
+New-ComplianceSearchAction -SearchName <search_name> -Purge -PurgeType HardDelete
+
+See the example below and modify for your use case:
+New-ComplianceSearchAction -SearchName JohnFrank -Purge -PurgeType HardDelete
+
+
+while($true) {New-ComplianceSearchAction -SearchName JohnFrank -Purge -PurgeType SoftDelete; write-host "waiting"; start-sleep -seconds 3;}
+
+while ($true) {New-ComplianceSearchAction -SearchName KenoOkula -Purge -PurgeType SoftDelete -Confirm:$false; Write-Host "waiting"; Start-Sleep -Seconds 5; }
+
+NB: Ensure that the admin account used to run the above cmdlet has a license assigned otherwise the items would not be deleted
+
+NB:Run the SoftDelete purge and worked right away, in the sense that the email was removed from the user’s mailbox and sent directly to the Recoverable items.
+
+Step 6: Track the progress for the delete action
+Get-ComplianceSearchAction -Identity "Case 1234_Preview_xxxxx" | Format-List
+Get-ComplianceSearchAction
+
+Step 7: Disconnect when you're finished
+Disconnect-ExchangeOnline
+
+User Reports that Meeting Room Allows Double Bookings
+
+Resolution:
+
+Use PowerShell to modify the settings:
+	1. Connect to Exchange Online using remote PowerShell.
+	2. Run the command: Set-CalendarProcessing -Identity room@contonso.com -AllowConflicts $False
+	3. Get-CalendarProcessing -Identity room@contonso.com | Set-CalendarProcessing -AllRequestOutOfPolicy $False
+
+See the resources below for more context:
+https://answers.microsoft.com/en-us/outlook_com/forum/all/room-allowing-multiple-bookings-at-the-same-time/953327c0-7a35-4f5c-84da-657c74ad6c74
+
+https://learn.microsoft.com/en-us/exchange/troubleshoot/calendars/you-still-can-reserve-a-meeting-room-even-if-it-is-reserved
+
+
+
+
+PowerShell CMDLET to Share Everyone's Calendar with One Another in the Organization
+
+Connect to Exchange Online using PowerShell with an admin account.
+Run the following command to grant Reviewer access to all users’ calendars:
+
+	• foreach ($user in Get-Mailbox -RecipientTypeDetails UserMailbox) {Set-MailboxFolderPermission -Identity ($user.alias+':\\calendar') -User Default -AccessRights Reviewer}
+ 
+This will set the default internal share setting to allow calendar free/busy information with time, subject, and location for all users in your organization. New users joining will also have the same default setting
+ 
+ 
+Reviewer Access for Internal Users:
+If you want internal users to see detailed calendar items within each other’s calendars, you can set their access rights to Reviewer. This allows them to view all event details.
+
+Connect to Exchange Online using PowerShell with an admin account.
+Run the following command to grant Reviewer access to all users’ calendars:
+ 
+	• Get-Mailbox | foreach { Set-MailboxFolderPermission $($_.UserPrincipalName+":\calendar") -User default -AccessRights Reviewer }
+
+
+
+Cx complains that a user is unable to accept calendar invites on their Outlook due to a corrupted delegation
+
+Resolution:
+
+	• Set-ExecutionPolicy RemoteSigned
+	• Install-Module ExchangeOnlineManagement -verbose -Force
+	• Import-Module ExchangeOnlineManagement
+	• Connect-ExchangeOnline
+	• Remove-MailboxFolderPermission -Identity kim@contoso.com:\Calendar -ResetDelegateUserCollection
+	• Get-MailboxCalendarFolder -Identity user@domain.com:\Calendar
+
+
+
+Show Meeting Details of an Office 365 Resource mailbox Calendar
+
+From <https://lazyadmin.nl/office-365/show-details-room-mailbox-meetings-in-its-calendar-in-office-365/> 
+
+Step 1 – Connect to EXO
+Connect-ExchangeOnline
+
+Get-EXOMailbox -RecipientTypeDetails RoomMailbox
+
+
+Step 2 – Set Limited details AccessRights
+Set-MailboxFolderPermission -Identity mailbox@contonso.com:\calendar -User default -AccessRights LimitedDetails
+
+Step 3 – Show the Subject and Organiser
+Set-CalendarProcessing -Identity mailbox@contonso.com -AddOrganizerToSubject $true -DeleteComments $false -DeleteSubject $false
+
+
+

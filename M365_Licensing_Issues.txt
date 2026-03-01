@@ -1,0 +1,36 @@
+Title: Generic mailbox license query
+Desc: Hi, We are in the process of migrating to Office 365. We currently have an on-premise account that is accessed by multiple (7 or 8 ) users simultaneously from different machines. If we move this mailbox to Office 365, they will hit the 5-device limit. My question is, can they use Microsoft 365 Apps for Business for five of the users and install Office 2016 OEM for the remaining 2/3 users?
+ 
+Resolutions:
+Currently, I have investigated this scenario in my test environment where more than 5 devices are accessing a standard user mailbox. There was no issue with Outlook access. Kindly note that the 5-device limitation applies to Office activation and not mailbox access. Therefore, more than 5 persons using different devices can access the mailbox in question when you migrate to Office 365 or Microsoft 365.
+ 
+Bulk Unlicensed Users from a Particular License SKU
+	· Created a CSV file with the User Principal Name
+	· Connect-MSOLServices
+	· Import-Csv C:\temp\gyin.csv | foreach {Set-MsolUserLicense -UserPrincipalName $_.UserPrincipalName -RemoveLicenses "cityofsunnyvale:ENTERPRISEPACK_GOV" }
+ 
+Bulk Assign License to Users from a Particular License SKU
+	· Created a CSV file with the User Principal Name
+	· Connect-MSOLServices
+	· Import-Csv C:\temp\gyin.csv | foreach {Set-MsolUserLicense -UserPrincipalName $_.UserPrincipalName -AddLicenses "cityofsunnyvale:ENTERPRISEPACK_GOV" }
+Assigning licenses in bulk in O365 using PowerShell - Microsoft Community
+ 
+To remove license, you can refer to this command:
+	· Connect-MsolServices
+· Get-MsolUser -All | where {$_.isLicensed -eq $true -and $_.Licenses.AccountSkuId -eq "$233fac"} | foreach {Set-MsolUserLicense -UserPrincipalName $_.UserPrincipalName -RemoveLicenses "$233fac"}
+ 
+To add license, you could refer to this command:
+	· Connect-MsolServices
+· Get-MsolUser -All | where {$_.isLicensed -eq $false} | foreach {Set-MsolUserLicense -UserPrincipalName $_.UserPrincipalName -AddLicenses "$233fac "}
+ 
+To add users with a particular license to a distribution group, run this command:
+ 
+$Users = (Get-MsolUser | Where-Object {($_.licenses).AccountSkuId -match "DEVELOPERPACK_E5"}) | select -expand ObjectId
+ 
+foreach ($User in $Users) {
+Add-AzureADGroupMember -ObjectId 'a41f7689-ded3-4d33-a0d4-532a077d86fd' -RefObjectId ($user)
+}
+ 
+To get the list of all users with their license, you can refer to this command:
+	· Connect-MsolServices
+· Get-MsolUser -All | where {$_.isLicensed -eq $true } | foreach {Get-MsolUserLicense}

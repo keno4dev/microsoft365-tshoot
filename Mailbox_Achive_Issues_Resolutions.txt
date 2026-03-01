@@ -1,0 +1,444 @@
+For Org-wide Configurations, it is recommended that we have litigation hold enabled for all user mailbox as well archive enabled for all users
+
+Get-Mailbox -ResultSize Unlimited -Filter "RecipientTypeDetails -eq 'UserMailbox'" | Set-Mailbox -LitigationHoldEnabled $true <-LitigationHoldDuration 456>
+
+Set-Mailbox <username> -LitigationHoldEnabled $true
+
+To enable archive for the user affected
+Enable-Mailbox -Identity <username> -Archive
+
+To disable litigation hold for all users, use the cmdet below:
+Get-Mailbox -ResultSize Unlimited -Filter "RecipientTypeDetails -eq 'UserMailbox'" | Set-Mailbox -LitigationHoldEnabled $false
+
+https://learn.microsoft.com/en-us/microsoft-365/compliance/increase-the-recoverable-quota-for-mailboxes-on-hold?source=recommendations&view=o365-worldwide#step-3-apply-the-new-exchange-retention-policy-to-mailboxes-on-hold
+ 
+Increase the Recoverable Items quota for mailboxes on hold
+ 
+ 
+*************************************************************
+Step 1: Create a custom retention tag for the Recoverable Items folder
+*************************************************************
+ 
+	· Connect-ExchangeOnline
+ 
+Optional commands to set the age of deleted items for user
+Set-Mailbox <username> -RetainDeletedItemsFor 14
+ 
+Set all user mailboxes in the organization to keep deleted items for 30 days. In Exchange Online PowerShell, run the following command.
+	· Get-Mailbox -ResultSize unlimited -Filter "RecipientTypeDetails -eq 'UserMailbox'" | Set-Mailbox -RetainDeletedItemsFor 30
+ 
+New-RetentionPolicyTag -Name <Name of RPT> -Type RecoverableItems -AgeLimitForRetention <Number of days> -RetentionAction MoveToArchive
+ 
+	· New-RetentionPolicyTag -Name "Recoverable Items 30 days for mailboxes on hold" -Type RecoverableItems -AgeLimitForRetention 30 -RetentionAction MoveToArchive
+	· New-RetentionPolicyTag -Name "MRM Policy Tag for Archive Mailboxes" -Type RecoverableItems -AgeLimitForRetention 30 -RetentionAction MoveToArchive
+
+554 5.2.0 STOREDRV.Deliver.Exception:QuotaExceededException.MapiExceptionShutoffQuotaExceeded; Failed to process message due to a permanent exception with message
+ 
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+Install-Module -Name ExchangeOnlineManagement -verbose
+Import-Module ExchangeOnlineManagement
+Connect-ExchangeOnline 
+ 
+===================================================================================
+	· Get-Mailbox -Identity user@contoso.com | FL recoverableitems*
+To validate State of the recoverable items folder
+ 
+	· Get-MailboxStatistics user@contoso.com | Format-List StorageLimitStatus,TotalItemSize,TotalDeletedItemSize,ItemCount,DeletedItemCount
+
+	· Get-MailboxFolderStatistics -Identity user@contoso.com -FolderScope RecoverableItems | Ft Identity,FolderAndSubfolderSize.
+ 
+Hold configuration
+In the affected environment, all mailboxes have been assigned a Microsoft retention policy. Depending on the configuration, this can be seen at the mailbox level or at the organization level.
+	· Get-Mailbox -Identity "$ExchangeGUID" | Select LitigationHoldEnabled,InPlaceholds
+	· Get-Mailbox -Identity "$ExchangeGUID" | Select ArchiveName,ArchiveStatus,ArchiveState
+	· $ExchangeGUID = Get-Mailbox john.doe@bader.cloud | Select-Object -ExpandProperty ExchangeGUID
+	· Get-MailboxFolderStatistics -Identity "$ExchangeGUID" -IncludeAnalysis -FolderScope RecoverableItems | Format-Table Name,ItemsInFolder,FolderSize,*Subject*
+
+
+We recommend that the retention period (defined by the AgeLimitForRetention parameter) for the Recoverable Items RPT is the same as the deleted item retention period for the mailboxes that the RPT will be applied to. This allows a user the entire deleted item retention period to recover deleted items before they are moved to the archive mailbox. In the previous example, the retention period was set to 30 days based on the assumption that the deleted item retention period for mailboxes is also 30 days. An Exchange Online mailbox is configured to retain deleted items for 14 days, by default. But you can change this setting to a maximum of 30 days.
+ 
+Note: An archive policy for archive mailboxes to automatically move emails from a user's primary mailbox to their archive mailbox after a specified period of time. An archive policy (with any settings) can be used in conjunction with a Microsoft 365 retention policy that applies to a user's primary and archive mailbox.
+https://learn.microsoft.com/en-us/microsoft-365/compliance/retention?view=o365-worldwide#use-retention-policies-and-retention-labels-instead-of-older-features
+ 
+ 
+************************************************************
+Step 2: Create a new Exchange retention policy for mailboxes on hold
+************************************************************
+ 
+Use the EAC to create a retention policy
+*********************************
+ 
+In the EAC, go to Compliance management > Retention policies, and then click Add Add Icon..
+
+Disable Single Item Recovery
+This step is necessary to allow the user to remove the faulty object completely.
+	· $ExchangeGUID = Get-Mailbox john.doe@bader.cloud | Select-Object -ExpandProperty ExchangeGUID
+	· Set-Mailbox -Identity "$ExchangeGUID" -SingleItemRecoveryEnabled $false
+ 
+Start Managed Folder Assistant (MFA)
+To speed up the cleanup process in Exchange Online afterwards, the Managed Folder Assistant (MFA) can be started manually. It is important to specify the parameter HoldCleanup.
+ 
+	· Start-ManagedFolderAssistant -Identity user@contonso.com -HoldCleanup
+ 
+This deletes all duplicated emails and frees up the space in the mailbox
+ 
+	· Enable-Mailbox smohammed@usgbc.org -AutoExpandingArchive
+	· Get-Mailbox smohammed@usgbc.org | FL AutoExpandingArchiveEnabled
+========================================================================================
+
+On the New retention policy page, under Name, type a name that describes the purpose of the retention policy; for example, MRM Policy for Mailboxes on Hold.
+ 
+Under Retention tags, click Add Add Icon..
+ 
+****OR***
+ 
+Use Exchange Online PowerShell to create a retention policy
+*************************************************
+ 
+	· New-RetentionPolicy "MRM Policy for Mailboxes on Hold"  -RetentionPolicyTagLinks "Recoverable Items 30 days for mailboxes on hold","1 Month Delete","1 Week Delete","1 Year Delete","5 Year Delete","6 Month Delete","Default 2 year move to archive","Junk Email","Never Delete","Personal 1 year move to archive","Personal 5 year move to archive"
+ 
+	· New-RetentionPolicy "MRM Policy for Mailboxes on Hold"  -RetentionPolicyTagLinks "Recoverable Items 30 days for mailboxes on hold"
+
+	· New-RetentionPolicy "General MRM Policy for Archive Mailboxes"  -RetentionPolicyTagLinks "Default 2 year move to archive","Junk Email","Never Delete","Personal 1 year move to archive","Personal 5 year move to archive"
+ 
+ 
+************************************************************
+Step 3: Apply the new Exchange retention policy to mailboxes on hold
+************************************************************
+ 
+Use the EAC to apply the new retention policy
+*************************************
+
+
+Use the EAC to apply the new retention policy
+Go to Recipients > Mailboxes.
+ 
+In the list view, select the mailbox you want to apply the retention policy to, and then click Edit Edit icon..
+ 
+On the User Mailbox page, click Mailbox features.
+ 
+Under Retention policy, select the retention policy that you created in Step 2, and then click Save.
+ 
+You can also use the EAC to apply the retention policy to multiple mailboxes.
+ 
+Go to Recipients > Mailboxes.
+ 
+In the list view, use the Shift or Ctrl keys to select multiple mailboxes.
+ 
+In the details pane, click More options.
+ 
+Under Retention Policy, click Update.
+ 
+On the Bulk assign retention policy page, select the retention policy that you created in Step 2, and then click Save.
+ 
+ 
+Use Exchange Online PowerShell to apply the new retention policy
+*****************************************************************
+ 
+Use Exchange Online PowerShell to apply the new retention policy
+ 
+	· Set-Mailbox "Pilar Pinilla" -RetentionPolicy "MRM Policy for Mailboxes on Hold"
+
+
+NB: Recommend to CX that this new policy should be applied to all users in the Org to prevent occurrences like this.
+ 
+This example applies the new retention policy to all mailboxes in the organization that are on Litigation Hold.
+****************
+ 
+$LitigationHolds = Get-Mailbox -ResultSize unlimited | Where-Object {$_.LitigationHoldEnabled -eq 'True'}
+ 
+$LitigationHolds.DistinguishedName | Set-Mailbox -RetentionPolicy "MRM Policy for Mailboxes on Hold"
+ 
+This example applies the new retention policy to all mailboxes in the organization that are on In-Place Hold.
+******************
+ 
+$InPlaceHolds = Get-Mailbox -ResultSize unlimited | Where-Object {$_.InPlaceHolds -ne $null}
+ 
+$InPlaceHolds.DistinguishedName | Set-Mailbox -RetentionPolicy "MRM Policy for Mailboxes on Hold"
+ 
+You can use the Get-Mailbox cmdlet to verify that the new retention policy was applied.
+ 
+Get-Mailbox "Pilar Pinilla" | Select RetentionPolicy
+
+Get-Mailbox <MailboxID> | fl *Retention*
+ 
+Here are some examples to verify that the commands in the previous examples applied the "MRM Policy for Mailboxes on Hold" retention policy to mailboxes on Litigation Hold and mailboxes on In-Place Hold.
+
+
+· Get-Mailbox -ResultSize unlimited | Where-Object {$_.LitigationHoldEnabled -eq 'True'} | FT DisplayName,RetentionPolicy -Auto
+ 
+· Get-Mailbox -ResultSize unlimited | Where-Object {$_.InPlaceHolds -ne $null} | FT DisplayName,RetentionPolicy -Auto
+ 
+ 
+ 
+**********************************************************************
+(Optional) Step 4: Run the Managed Folder Assistant to apply the new retention settings
+**********************************************************************
+ 
+Instead of waiting for the Managed Folder Assistant to run, you can use the Start-ManagedFolderAssistant cmdlet to manually trigger the assistant to process the mailboxes that you applied the new retention policy to.
+ 
+Run the following command to start the Managed Folder Assistant for Pilar Pinilla's mailbox. Wait for 5 minutes before running this command.
+ 
+· Start-ManagedFolderAssistant "user@contoso.com"
+· Start-ManagedFolderAssistant -Identity user@domain.com -FullCrawl
+
+To run the Folder Assistance in a loop, use the command below:
+
+while($true) {
+start-managedfolderassistant user@domain.com;
+write-host "waiting"; start-sleep -seconds 90;
+}
+
+To start the managed folder assistant for all mailboxes in the Exchange Organization
+Get-Mailbox -ResultSize Unlimited | ForEach-Object { Start-ManagedFolderAssistant -Identity $_.UserPrincipalName -FullCrawl }
+
+Get-Mailbox -ResultSize Unlimited | ForEach-Object { Start-ManagedFolderAssistant -Identity $_.ExchangeGuid  -FullCrawl }
+
+ 
+Run the following commands to start the Managed Folder Assistant for all mailboxes on hold.
+ 
+· $MailboxesOnHold = Get-Mailbox -ResultSize unlimited | Where-Object {($_.InPlaceHolds -ne $null) -or ($_.LitigationHoldEnabled -eq "True")}
+ 
+· $MailboxesOnHold.DistinguishedName | Set-Mailbox -ElcProcessingDisabled $false
+ 
+· $MailboxesOnHold.DistinguishedName | Start-ManagedFolderAssistant -FullCrawl
+ 
+Confirm if Elc Processing is disabled
+ 
+· Get-Mailbox user@contonso.com | FL ElcProcessingDisabled, SingleItemRecoveryEnabled
+ 
+· Set-Mailbox jeanne.itzen@inclusa.org -SingleItemRecoveryEnabled $false
+ 
+When the ElcProcessingDisabled property is set to True (by using the Set-Mailbox -ElcProcessingDisabled $true command), it prevents the Managed Folder Assistant from processing the mailbox at all. So in addition to not processing the MRM retention policy, other functions performed by the Managed Folder assistant, such as expiring items in the Recoverable Items folder by marking them for permanent removal, won't be performed.
+ 
+However, the Managed Folder Assistant will continue to process items in the Recoverable Items folder, including purging expired items. So setting ElcProcessingDisabled to True is more restrictive and has more consequences than setting the RetentionHoldEnabled property to True.
+ 
+Another significant difference between these two mailbox properties is that the ElcProcessingDisabled property can be set at the organizational level with the Set-OrganizationConfig -ElcProcessingDisabled $true command (the default setting is False). This means that you could prevent the Managed Folder Assistant from processing all mailboxes in your organization. In contrast, you can only set the RetentionHoldEnabled property on a per mailbox basis.
+
+
+· Set-Mailbox -identity jeanne.itzen@inclusa.org -ElcProcessingDisabled $false
+ 
+Do this for the entire Org by this cmdlet:
+ 
+· Set-OrganizationConfig -ElcProcessingDisabled $false
+ 
+Keep the following things in mind when managing the ElcProcessingDisabled property for a mailbox:
+ 
+If the ElcProcessingDisabled property is set to False on a mailbox, but the organizational setting is set to True, the organizational setting overrides the mailbox setting and the Managed Folder Assistant won't process the mailbox.
+ 
+If the ElcProcessingDisabled property is set to True on a mailbox, but the organizational setting is set to False, the Managed Folder Assistant won't process the mailbox.
+ 
+
+I ran this in two separate customer tenancies this morning, and in both cases got an RPC error, along the lines of:
+
+	· Start-ManagedFolderAssistant -Identity "user@example.com"
+
+The call to Mailbox Assistants Service on server: 'whatever.prod.outlook.com' failed. Error from RPC is -2147220992.
+ CategoryInfo          : InvalidOperation: (:) [Start-ManagedFolderAssistant], TaskException
+ FullyQualifiedErrorId : [Server=SOMETHING,RequestId=cd265b1d-ef2a-cafe-babe-23147a5f1123,TimeStamp=18/07/2019 2:32:28 AM] [FailureCategory=Cmdlet-TaskException] DEADBEEF,Microsoft.Exchange.Management.SystemConfigurationTasks.StartElcAssistant
+ PSComputerName        : outlook.office365.com 
+
+
+As it turns out, thanks to a helpful blog post from Tim McMichael on TechNet, there’s an easy solution. Look up the GUID of the user’s primary mailbox and then use this as the identity for the Managed Folder Assistant.
+
+	· Get-MailboxLocation –user user@example.com | fl mailboxGuid,mailboxLocationType
+
+If you have archiving enabled, then this returns two GUIDs, one for the Primary and one for the MainArchive mailboxes.
+Grab the GUID for the Primary mailbox, and use it like so:
+
+	· Start-ManagedFolderAssistant aace1f4e-feed-ace0-babe-466f1deed1d1
+
+When utilizing the GUID we can minimize the change that any initialization process does not cause the command to fail.
+See for more information https://learn.microsoft.com/en-gb/archive/blogs/timmcmic/office-365-start-managedfolderassistant-in-office-365
+
+
+Note: Using GUID will easily run the command but the issue does not resolve. The email movement will not start unless the user logs in to OWA once.
+
+Please note that if a mailbox is too full, archiving may still not start. In that case, you must bring the size of the primary mailbox below 85% capacity, according to Microsoft, or below 95%, according to my actual experience. Then triggering Start-ManagedFolderAssistant actually gets it going.
+
+
+
+**********************************************************************
+ 
+Run the following command in Exchange Online PowerShell to enable auto-expanding archiving for a specific user
+ 
+· Enable-Mailbox allie@craftedcom.com -AutoExpandingArchive
+ 
+Verify that auto-expanding archiving is enabled per user
+ 
+· Get-Mailbox allie@craftedcom.com | FL AutoExpandingArchiveEnabled
+
+
+************************************************************************
+ORG-WIDE Settings
+************************************************************************
+ 
+	· Set-OrganizationConfig -ElcProcessingDisabled $false
+	· Set-OrganizationConfig -SingleItemRecoveryEnabled $true
+ 
+NB: Single item recovery enabled does not prevent the Managed Folder Assistant from running.
+When the Managed Folder Assistant processes the Recoverable Items folder for a mailbox that has single item recovery enabled, any item in the Purges subfolder isn't purged if the deleted item retention period hasn't expired for that item.
+ 
+State of single item recovery: Enabled
+********************************
+Recoverable Items folder contains soft-deleted items: Yes
+Recoverable Items folder contains hard-deleted items: Yes
+Users can purge items from the Recoverable Items folder: No
+Managed Folder Assistant automatically purges items from the Recoverable Items folder: Yes. By default, all items are purged after 14 days, except for calendar items, which are purged after 120 days. If the Recoverable Items warning quota is reached before the deleted item retention period elapses, messages are deleted in first in, first out (FIFO) order.
+ 
+State of single item recovery: Disabled
+*******************************
+Recoverable Items folder contains soft-deleted items: Yes
+The recoverable Items folder contains hard-deleted items: No
+
+
+Users can purge items from the Recoverable Items folder: Yes
+Managed Folder Assistant automatically purges items from the Recoverable Items folder: Yes. By default, all items are purged after 14 days, except for calendar items, which are purged after 120 days. If the Recoverable Items warning quota is reached before the deleted item retention period elapses, messages are deleted in first in, first out (FIFO) order.
+ 
+Note
+*******
+If you put a mailbox on both In-Place Hold and Litigation Hold, Litigation Hold takes preference because this puts the entire
+mailbox on hold. Note that the In-place hold does not prevents managed folder assistant from running, 
+but litigation hold does prevents.
+https://learn.microsoft.com/en-us/exchange/security-and-compliance/recoverable-items-folder/recoverable-items-folder
+ 
+You can also use PowerShell to enable archive mailboxes. For example, you can run the following command in Exchange Online PowerShell to enable archive mailboxes for all users whose archive mailbox isn't already enabled.
+ 
+	· Get-Mailbox -Filter {ArchiveStatus -Eq "None" -AND RecipientTypeDetails -eq "UserMailbox"} | Enable-Mailbox -Archive
+ 
+Run the following command to enable the archive mailbox for all users in your organization (whose archive mailbox is currently not enabled).
+ 
+	· Get-Mailbox -Filter {ArchiveGuid -Eq "00000000-0000-0000-0000-000000000000" -AND RecipientTypeDetails -Eq "UserMailbox"} | Enable-Mailbox -Archive
+
+
+*****************************************************
+Enable auto-expanding archiving for your entire organization
+ 
+Connect to Exchange Online PowerShell
+ 
+Run the following command in Exchange Online PowerShell to enable auto-expanding archiving for your entire organization.
+ 
+	· Set-OrganizationConfig -AutoExpandingArchive
+ 
+When you enable auto-expanding archiving for a specific user and the user's mailbox in on hold or assigned to a retention policy, the following two configurations changes are made:
+ 
+The storage quota for the user's primary archive mailbox is increased by 10 GB (from 100 GB to 110 GB). The archive warning quota is also increased by 10 GB (from 90 GB to 100 GB).
+ 
+The storage quota for the Recoverable Items folder in the user's primary mailbox is increased by 10 GB (also from 100 GB to 110 GB). The Recoverable Items warning quota is also increased by 10 GB (from 90 GB to 100 GB). These changes are applicable only if the mailbox is on hold or assigned to a retention policy.
+ 
+This additional space is added to prevent any storage issues that may occur before the auto-expanding archive is provisioned. Additional storage space is not added when you enable auto-expanding archiving for your entire organization
+https://learn.microsoft.com/en-us/microsoft-365/compliance/enable-autoexpanding-archiving?view=o365-worldwide
+
+
+Verify that auto-expanding archiving is enabled for the organization
+ 
+	· Get-OrganizationConfig | FL AutoExpandingArchiveEnabled
+ 
+To determine if auto-expanding archiving is enabled for inactive mailboxes, run the following command in Exchange Online PowerShell.
+ 
+	· Get-Mailbox -InactiveMailboxOnly | FL UserPrincipalName,AutoExpandingArchiveEnabled
+ 
+ 
+*********************************
+Run diagnostics on archive mailboxes
+*********************************
+You can run an automated diagnostic check on a user's archive mailbox to identify any problems and suggested resolutions.
+ 
+To run the diagnostic check, click the button below.
+ 
+https://aka.ms/PillarArchiveMailbox
+ 
+A flyout page opens in the Microsoft 365 admin center. Enter the email address of the mailbox you want to check and click Run Tests.
+
+Effect of Enabling Mailbox Archive on Tasks and To-do Items
+
+After you disable an archive mailbox, you can reconnect it to the user's primary mailbox within 30 days of disabling it. In this case, the original contents of the archive mailbox are restored. After 30 days, the contents of the original archive mailbox are permanently deleted and can't be recovered. So if you re-enable the archive more than 30 days after disabling it, a new archive mailbox is created.
+ 
+The default archive policy assigned to users' mailboxes moves items to the archive mailbox two years after the date the item is delivered. If you disable a user's archive mailbox, no action will be taken on mailbox items and they'll remain in the user's primary mailbox. See Enable archive mailboxes for Microsoft 365 | Microsoft Learn
+
+Summary for the configuration of Mailbox Archives - Case by Case Scenario
+
+See https://learn.microsoft.com/en-us/powershell/module/exchange/new-retentionpolicytag?view=exchange-ps
+
+	• Enable archive mailbox for the user
+		○ Enable-Mailbox -Identity mark.chorak@brotherbenno.org -Archive
+	• Optionally, enable Litigation hold to preserve all mailbox items
+		○ Set-Mailbox -Identity mark.chorak@brotherbenno.org -LitigationHoldEnabled $true
+
+	• Get-Mailbox -Identity user@contoso.com | FL recoverableitems*
+	To validate State of the recoverable items folder
+ 
+	• Get-MailboxStatistics user@contoso.com | Format-List StorageLimitStatus,TotalItemSize,TotalDeletedItemSize,ItemCount,DeletedItemCount
+ 
+	• Get-MailboxFolderStatistics -Identity user@contoso.com -FolderScope RecoverableItems | Ft Identity,FolderAndSubfolderSize
+
+	• Get-MailboxFolderStatistics -Identity user@contoso.com | sort itemsinfolder -descending | ft folderpath,itemsinfolder
+
+	• Get-Mailbox -Identity David@PascaleLaMode.com | Select DisplayName, *Quota*
+
+
+
+	• Retention tag created
+		○ New-RetentionPolicyTag -Name "Recoverable Items 30 days for mailboxes on hold" -Type RecoverableItems -AgeLimitForRetention 30 -RetentionAction MoveToArchive
+		○ New-RetentionPolicyTag -Name "MRM Policy Tag for Archive Mailboxes"-Type All -AgeLimitForRetention 30 -RetentionAction MoveToArchive
+		
+		○ Set-RetentionPolicyTag -Identity "MRM Policy Tag for Archive Mailboxes" -AgeLimitForRetention 30
+	• Retention policy created as well
+		○ New-RetentionPolicy "MRM Policy for Mailboxes on Hold"  -RetentionPolicyTagLinks "Recoverable Items 30 days for mailboxes on hold","1 Month Delete","1 Week Delete","1 Year Delete","5 Year Delete","6 Month Delete","Default 2 year move to archive","Junk Email","Never Delete","Personal 1 year move to archive","Personal 5 year move to archive"
+		○ New-RetentionPolicy "Default MRM Policy for Archive Mailboxes"  -RetentionPolicyTagLinks "MRM Policy Tag for Archive Mailboxes","Default 2 year move to archive","Junk Email","Never Delete","Personal 1 year move to archive","Personal 5 year move to archive"
+	• Now apply the retention policy to the mailbox using the command:
+		○ Set-Mailbox mark.chorak@brotherbenno.org -RetentionPolicy "MRM Policy for Mailboxes on Hold"
+		○ Set-Mailbox mark.chorak@brotherbenno.org -RetentionPolicy "Default MRM Policy for Archive Mailboxes"
+	• Now, ensure that ElcProcessingDisabled is set to false for the mailbox using the command below:
+		○ Set-MailboxDavid@PascaleLaMode.com -ElcProcessingDisabled $false
+		○ Set-OrganizationConfig -ElcProcessingDisabled $false
+	• Next, run the start-managedfolder assistance command to begin moving mailbox items from filled up recoverable items folder into archive. Use the cmdlet below:
+		○ Start-ManagedFolderAssistant -Identity jparkin@eqstrafleet.co.za -FullCrawl
+	• If the Start-ManagedFolderassistant returns an error like it did during our session, then look up the GUID of the user’s primary mailbox and then use this as the identity for the Managed Folder Assistant. Run thecommand below: 
+		○ Get-MailboxLocation –user jparkin@eqstrafleet.co.za | fl mailboxGuid,mailboxLocationType
+	• Since we have archiving enabled, this would returns two GUIDs, one for the Primary and one for the MainArchive mailboxes. Grab the GUID for the Primary mailbox, and use it like so:
+		○ Start-ManagedFolderAssistant a3a188df-825c-4a3d-8fcd-c33882cfbc32  -FullCrawl
+
+Customer problem
+Issue Definition: Unable to retrieve deleted emails1/27/2022, 2:40:50 PM
+Resolution steps
+
+Resolution: 
+Create a Litigation hold - Microsoft 365 Compliance | Microsoft Docs In-Place Hold and Litigation Hold in Exchange Online | Microsoft Docs Place a mailbox on Litigation Hold | Microsoft Docs 
+· To place the litigation, hold organization wide for all the users please follow the below steps, Open the PowerShell in elevated mode 
+· Connect your PowerShell with exchange online with admin account. 
+· Connect to Exchange Online PowerShell | Microsoft Docs 
+Now run the cmdlet 
+· Get-Mailbox -ResultSize Unlimited -Filter {RecipientTypeDetails -eq "UserMailbox"} | Set-Mailbox -LitigationHoldEnabled $true -LitigationHoldDuration 2555
+Assign Litigation Hold to all the Exchange Online recipients (Bulk mode) 
+· Get-Mailbox -ResultSize Unlimited -Filter {RecipientTypeDetails -eq "UserMailbox"} | Set-Mailbox -LitigationHoldEnabled $True 
+Assign litigation Hold to Exchange Online recipients (Bulk mode) based on a criterion | Department 
+
+· Get-Recipient -RecipientTypeDetails UserMailbox -ResultSize unlimited -Filter '(Department -eq "Marketing")' | Set-Mailbox -LitigationHoldEnabled $True 
+Display information about all the mailboxes which have Litigation Hold 
+· Get-Mailbox -ResultSize Unlimited | FL LitigationHold* 
+Display information about User mailboxes which don’t have Litigation Hold 
+· Get-Mailbox | Where {$_.LitigationHoldEnabled -match "False"} | FL Name,LitigationHold* 
+Display information about mailboxes which have Litigation Hold | information about the recoverable items folder. 
+· Get-Mailbox -ResultSize Unlimited -Filter {LitigationHoldEnabled -eq $true} | Get-MailboxFolderStatistics –FolderScope RecoverableItems | Format-Table Identity,FolderAndSubfolderSize -Auto 
+Generate a report for litigation hold status\details for all the org mailboxes. 
+· Get-Mailbox -ResultSize unlimited | Format-Table DisplayName, LitigationHoldEnabled -Auto >c:\file.csv
+ 
+Title: users dana.orthwein@acco.com and amy.dixon@acco.com are unable to delete emails from online archive
+Desc: users dana.orthwein@acco.com and amy.dixon@acco.com are unable to delete emails from online archive. I have removed all holds from both mailboxes and same issue occurs.
+
+· Search-Mailbox <Source Mailbox> -SearchQuery {Received:mm/dd/yyyy..mm/dd/yyyy} -TargetMailbox <Target mailbox> -TargetFolder <Target Folder> -DeleteContent -Force -LogLevel Full
+· Search-Mailbox -Identity "April Stewart" -SearchQuery 'Subject:"Your bank statement"' -TargetMailbox "administrator" -TargetFolder "SearchAndDeleteLog" -LogOnly -LogLevel Full
+· Search-Mailbox -Identity "Joe Healy" -SearchQuery "Subject:Project Hamilton" -TargetMailbox "DiscoveryMailbox" -TargetFolder "JoeHealy-ProjectHamilton" -LogLevel Full
+ 
+		a.      Option A:
+		Identify the affected object in Azure AD. Confirm if you really want to delete the object. If that's the case, simply use PowerShell to permanently delete the object from Azure AD.
+		Run the cmdlet: "Connect-MsolService" and enter your global admin credentials
+		Next, run: Remove-MsolUser -ObjectId "<user's object ID>" -RemoveFromRecycleBin
+		Trigger a delta sync by running the cmdlet: Start-ADSyncSyncCycle -PolicyType Delta
+b.      Option B:
+If the object has been deleted in Active Directory but you want to keep the "Cloud-Only" object in AAD, simply use PowerShell to clear the SourceAnchor / ImmutableID from the object.
+
+Run the cmdlet: Connect-MsolService and enter your global admin credentials
+Next, run: Set-MsolUser -ObjectId '<user's object ID>' -ImmutableId "$null"
+Trigger a delta sync by running the cmdlet: "Start-ADSyncSyncCycle -PolicyType Delta"

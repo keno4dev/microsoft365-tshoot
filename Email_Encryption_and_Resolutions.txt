@@ -1,0 +1,220 @@
+NB: When another user has access to a user mailbox, that mailbox cannot open encrypted emails. This is because the essence of encryption would be defeated.
+
+https://learn.microsoft.com/en-us/outlook/troubleshoot/user-interface/encrypted-restricted-message-shared-mailbox
+
+Encryption: You can't encrypt email sent from a shared mailbox. This is because a shared mailbox does not have its own security context (username/password) so it cannot be assigned a key. If more than one person is a member, and they send/receive emails they encrypted with their own keys, other members might be able to read the email and others might not, depending which public key the email was encrypted with.
+
+https://learn.microsoft.com/en-us/microsoft-365/admin/email/about-shared-mailboxes?view=o365-worldwide
+
+NOTE:
+https://learn.microsoft.com/en-us/purview/ome-faq#what-subscriptions-do-i-need-to-use-microsoft-purview-message-encryption-
+
+To use Microsoft Purview Message Encryption, you need one of the following plans:
+
+	• Microsoft Purview Message Encryption is offered as part of Office 365 Enterprise E3 and E5, Microsoft 365 Enterprise E3 and E5, Microsoft 365 Business Premium, Office 365 A1, A3, and A5, and Office 365 Government G3 and G5. You don't need additional licenses to receive the new protection capabilities powered by Azure Information Protection.
+
+	• You can also add Azure Information Protection Plan 1 to the following plans to receive Microsoft Purview Message Encryption: Exchange Online Plan 1, Exchange Online Plan 2, Office 365 F3, Microsoft 365 Business Basic, Microsoft 365 Business Standard, or Office 365 Enterprise E1.
+
+	• Each user benefiting from Microsoft Purview Message Encryption needs a license to use message encryption.
+
+
+Title: Encrypted Emails [from Outside the Org] not Opening in Outlook 2019
+Desc: Users get the error message while trying to open the email after prompted to sign in, "Sorry, but we are having trouble signing you in."
+ 
+Resolutions:  Install the MS AIP Package found at https://www.microsoft.com/en-us/download/details.aspx?id=53018
+
+Title: Encrypted email (How to enable mail encryption)
+Desc: Error: Your machine isn't setup for information Rights Management (IRM). To setup IRM sign into office, open an existing IRM protected message or document or contact your help desk.
+ 
+Resolutions:
+ 
+Use the Shell to enable IRM for internal messages
+This example enables IRM for internal messages for the Exchange organization.
+Run the following commands to enable Rights Management within Exchange Online:
+	· Set-IRMConfiguration –RMSOnlineKeySharingLocation " https://sp-rms.na.aadrm.com/TenantManagement/ServicePartner.svc "
+	· Import-RMSTrustedPublishingDomain -RMSOnline -name "RMS Online"
+	· Set-IRMConfiguration -InternalLicensingEnabled $true
+	· Set-IRMConfiguration -AzureRMSLicensingEnabled $true
+	· Set-IRMConfiguration -SimplifiedClientAccessEnabled $true
+	
+	· Test-IRMConfiguration -sender user@contonso.com
+	This example tests the IRM configuration in on-premises Exchange for messages sent from the sender user@contoso.com.
+	 
+	 
+	· Set-ExecutionPolicy unrestricted
+	 
+From < https://technoresult.com/fix-running-scripts-is-disabled-on-this-system-in-powershell-on-windows-11/> 
+
+Desktop Outlook Unable to Encrypt Email While OWA works fine
+
+Launch PowerShell as Admin and firstly connect to Exchange Online PowerShell
+Then proceed to connect to AIP service:
+Run :
+	• Connect-AIPService
+	• Get-AipServiceOnboardingControlPolicy
+	• Set-AipServiceOnboardingControlPolicy -UseRmsUserLicense $False -Scope All
+
+Allow some time for the change to propagate.
+Then test the issue again after restarting the user computer.
+
+https://learn.microsoft.com/en-us/powershell/module/aadrm/set-aadrmonboardingcontrolpolicy?view=azureipps
+
+	• Get-AadrmOnboardingControlPolicy
+
+Do not restrict Azure Rights Management for users
+	• Set-AadrmOnboardingControlPolicy -UseRmsUserLicense $False -Scope All
+
+This command allows all users to protect content by using Azure Rights Management. The command applies to Windows clients and mobile devices.
+
+The cmdlets can also be modified so that it is applied to one user after creating a security group and assigning the user to the group, thereafter, the settings are implemented as shown below:
+
+
+	• Set-AipServiceOnboardingControlPolicy -UseRmsUserLicense $False -SecurityGroupObjectId "fba99fed-32a0-44e0-b032-37b419009501" -Scope All
+
+	• Set-AadrmOnboardingControlPolicy -UseRmsUserLicense $False -SecurityGroupObjectId "fba99fed-32a0-44e0-b032-37b419009501" -Scope All
+
+
+Title: o365 s/mime missing certificate error (Option to encrypt emails is missing in Outlook on the Web)
+Desc: I installed the SmimeOutlookWebChrome.msi so that I can do s/mime in chrome and edge. now when I encrypt with s/mime I get an error that says "valid certificate weren't found for the recipients listed above".
+ 
+Resolutions:  https://admin.microsoft.com/AdminPortal/Home#/Settings/OrganizationProfile/:/Settings/L1/ReleasePreferences - Switch to Standard Release and allow 1-2 hours. That can also be achieved by navigating 365 Admin Portal > Settings > Organizational Profile > Release Preferences.
+
+ 
+· Install-Module -Name AIPService -AllowClobber
+· Import-Module -Name AIPService
+· Connect-AipService
+A connection to the Azure Information Protection service was opened.
+ 
+· $EndPoint=(Get-AipServiceConfiguration).LicensingIntranetDistributionPointUrl 
+· Set-IRMConfiguration -LicensingLocation $EndPoint
+ 
+· Set-IRMConfiguration -InternalLicensingEnabled $true -AzureRMSLicensingEnabled $true
+· After the scripts has been executed, *Run 
+· Get-IRMConfiguration 
+· Get-RMStemplate
+ 
+From < https://docs.microsoft.com/en-us/powershell/module/exchange/test-irmconfiguration?view=exchange-ps> 
+ 
+Configuring IRM for Exchange Online with no ADRMS (no on premise) server - TechNet Articles - United States (English) - TechNet Wiki (microsoft.com)
+ 
+Resolution steps
+-We fixed this by running the following commands:
+ 
+********************************************************************
+WORKING SCRIPTS 1
+********************************************************************
+
+· Set-ExecutionPolicy Unrestricted
+· Set-ExecutionPolicy RemoteSigned
+· Install-Module -Name AIPService
+· Import-Module -Name AIPService
+· Connect-AIPService
+· Enable-AIPService
+· Get-AIPservice
+· Install-Module ExchangeOnlineManagement -Verbose -Force
+· Import-Module ExchangeOnlineManagement
+· Connect-ExchangeOnline
+· Get-IRMConfiguration
+· Get-AipServiceConfiguration |fl LicensingIntranetDistributionPointUrl
+ 
+https://2de2a1e0-4ad0-4185-8453-2b60944b47ab.rms.eu.aadrm.com/_wmcs/licensing
+
+*Copy or note this URL location, it will be used to configure the rights management license location that EXO will connect to.
+* Connect to Exchange Online
+
+· $RMSConfig = Get-AipServiceConfiguration
+· $LicenseUri = $RMSConfig.LicensingIntranetDistributionPointUrl
+· Set-IRMConfiguration -LicensingLocation $LicenseUri or Set-IRMConfiguration -LicensingLocation https://8a78f242-9d75-4fb1-83c5-f543a1000651.rms.na.aadrm.com/_wmcs/licensing
+· https://8a78f242-9d75-4fb1-83c5-f543a1000651.rms.na.aadrm.com/_wmcs/licensing
+
+· Set-IRMConfiguration -AzureRMSLicensingEnabled $true
+
+· Set-IRMConfiguration -InternalLicensingEnabled $true
+· Set-IRMConfiguration -SimplifiedClientAccessEnabled $true
+
+· Get-IRMConfiguration 
+· Test-IRMConfiguration -Sender securityadmin@contoso.com -Recipient securityadmin@contoso.com
+· Get-RMStemplate
+· Test-IRMConfiguration -Sender securityadmin@contoso.com -Recipient securityadmin@contoso.com
+
+NB: No email is actually sent, but the result shows if the email attempt was successful
+ 
+ 
+********************************************************************
+WORKING SCRIPTS 2
+********************************************************************
+
+· Set-ExecutionPolicy RemoteSigned
+· Install-module -name AIPservice
+· Import-Module -Name AIPService
+· Connect-AipService
+ 
+#Connect to the Azure Rights Management service.
+#Install the AIPservice module
+· Uninstall-Module -Name AADRM
+· Install-Module -Name AIPService
+· Update-Module -Name AIPService
+ 
+#Connect to AIPservice
+· Connect-AIPservice
+ 
+#Activate the service.
+· Enable-Aadrm
+
+#Connect to Exhange Online to get the settings
+· Connect-ExchangeOnline
+· Get-IRMConfiguration
+· Get-AipServiceConfiguration |fl LicensingIntranetDistributionPointUrl
+ 
+#Disconnect from the service.
+· Disconnect-Aipservice
+ 
+#Create a remote PowerShell session and connect to Exchange Online.
+· Install-Module ExchangeOnlineManagement
+· Import-Module ExchangeOnlineManagement
+· Connect-ExchangeOnline
+ 
+ 
+#Collect IRM configuration for Office 365.
+· $irmConfig = Get-IRMConfiguration
+· $list = $irmConfig.LicensingLocation
+· if (!$list) { $list = @() }
+· if (!$list.Contains($licenseUri)) { $list += $licenseUri }
+ 
+#Enable message encryption for Office 365.
+· Set-IRMConfiguration -LicensingLocation $list
+· Set-IRMConfiguration -AzureRMSLicensingEnabled $true -InternalLicensingEnabled $true
+ 
+#Enable the Protect button in Outlook on the web (Optional).
+· Set-IRMConfiguration -SimplifiedClientAccessEnabled $true
+· Get-IRMConfiguration 
+· Get-RMStemplate
+· Test-IRMConfiguration -Sender securityadmin@contoso.com -Recipient securityadmin@contoso.com
+ 
+ 
+•Tested Outlook desktop > still doesn't work 
+•Control Panel > Mail Microsoft Outlook > Added a new profile 
+•Rebooted Outlook > New profile > New email > it works 
+•Cx needed to change language to Danish
+•Outlook desktop > file > Options > Language > installed Danish
+
+Email Encryption
+ 
+Try opening outlook on incognito window
+Search for RMS configuration in the home page of M365 admin center.
+Check out for license changes to the affected user's account. 
+ 
+https://support.microsoft.com/en-us/office/encrypt-email-messages-373339cb-bf1a-4509-b296-802a39d801dc
+ 
+https://learn.microsoft.com/en-us/microsoft-365/compliance/set-up-new-message-encryption-capabilities?source=recommendations&view=o365-worldwide
+ 
+https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/azure-ip-protection-features?view=o365-worldwide
+ 
+https://answers.microsoft.com/en-us/outlook_com/forum/all/no-option-to-encrypt-email-through-office-365/86259917-deb0-4fa2-a070-6f3bab4eedde
+
+
+
+S/MIME Encryption Setup in Exchange Online & Outlook
+
+
+

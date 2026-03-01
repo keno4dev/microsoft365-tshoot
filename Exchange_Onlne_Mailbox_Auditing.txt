@@ -1,0 +1,49 @@
+Mailbox Audit Logging
+
+Enabling audit logging for a mailbox logs all access to that mailbox by Exchange Online administrators or users with delegated permissions.
+
+• Connect to your Exchange Online server by running the following commands in PowerShell or
+Exchange Management Shell (url2open.com/ems) as administrator:
+
+$UserCredential = Get-Credential 
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/
+powershell-liveid/ -Credential $UserCredential -Authentication Basic -AllowRedirection 
+Import-PSSession $Session 
+
+• To enable or disable mailbox audit logging granularly on each
+mailbox (recommended), use the Set-Mailbox cmdlet:
+
+ To enable audit: Set-Mailbox –Identity TestUser -AuditEnabled $true
+ To disable audit: Set-Mailbox –Identity TestUser –AuditEnabled $false
+
+• To enable audit for all users’ mailboxes, use this script:
+$UserMailboxes = Get-mailbox -Filter {(RecipientTypeDetails -eq 
+'UserMailbox')} 
+$UserMailboxes | ForEach {Set-Mailbox $_.Identity -AuditEnabled $true}
+
+
+
+Manage Mailbox Audit via Exchange Management Shell or PowerShell 
+
+• Check whether audit is enabled:
+Get-Mailbox | FL Name,AuditEnabled #A value of True for the
+AuditEnabled property verifies that audit logging is enabled
+
+• Retrieve mailbox audit log entries for specified mailbox:
+Search-MailboxAuditLog TestUser -LogonTypes Admin,Delegate -ShowDetails
+
+• Send all mailbox audit log entries to specified email address:
+New-MailboxAuditLogSearch -StatusMailRecipients auditor@test.local
+#Note that you will be asked for start and end dates
+
+
+
+Manage Mailbox Audit via Exchange Admin Center (EAC) 
+
+• Review non-owner access to mailboxes with audit enabled:
+Navigate to Compliance Management > Auditing and click “Run a non-owner mailbox access report”.
+
+• View details about non-owner access to a specific mailbox: Click the
+mailbox in the report.
+
+• Export mailbox audit logs: Navigate to Compliance Management >Auditing and click “Export mailbox audit logs”

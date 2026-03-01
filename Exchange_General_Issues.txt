@@ -1,0 +1,750 @@
+Connect to Exchange Online PowerShell
+ 
+	Start-Transcript -Path "C:\transcripts\transcript0.txt" -NoClobber
+	Set-ExecutionPolicy RemoteSigned
+	Install-Module Msonline 
+	Import-Module Msonline 
+	Install-Module ExchangeOnlineManagement -verbose -Force
+	Import-Module ExchangeOnlineManagement
+	Connect-ExchangeOnline -UserPrincipalName allie@craftedcom.com -ShowProgress $true
+	
+	
+https://docs.microsoft.com/en-us/powershell/exchange/connect-to-exchange-online-powershell?redirectedfrom=MSDN&view=exchange-ps
+
+Recover a deleted Mailbox in M365
+ 
+	· Connect-MsolService
+	·  Remove-MsolUser -UserPrincipalName "davidchew@contoso.com" -RemoveFromRecycleBin
+
+Title: how to adjust the exchange timezone
+ 
+A valid value for this parameter is a supported time zone key name (for example, "Pacific Standard Time").
+ 
+To see the available values, run the following command:
+
+$TimeZone = Get-ChildItem "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Time zones" | foreach {Get-ItemProperty $_.PSPath}; $TimeZone | sort Display | Format-Table -Auto PSChildname,Display
+ 
+To configure the timezone for all users, run the following command
+Get-Mailbox | Set-MailboxRegionalConfiguration -Language en-GB -DateFormat "dd/MM/yyyy" -TimeFormat "HH:mm" -TimeZone "W. Europe Standard Time"
+ 
+From < https://www.azure365pro.com/how-to-change-time-zone-settings-in-an-exchange-server-and-its-user-mailboxes-in-exchange-201020132016/> 
+From < https://learn.microsoft.com/en-us/powershell/module/exchange/set-mailboxregionalconfiguration?redirectedfrom=MSDN&view=exchange-ps> 
+
+Title: How to check if users read the email
+Desc: The email has been sent to end users, we want to know who read the email. 
+ 
+From < https://beta.rave.office.net/cases/bc50f8c7-1f5c-4fe3-a688-8c9fd56cc09a> 
+ 
+Resolutions:
+Checking Read (Unread) Status of Emails in Exchange | Windows OS Hub (woshub.com)
+ 
+Tracking Read Status of an Email Message in Exchange Server
+Let’s see how to get an email message read status in an on-prem Exchange Server mailbox. First of all, make sure that email read tracking is enabled in your Exchange organization:
+
+	Adding a shared calendar on window & Mac 
+	Adding a shared calendar on windows 
+	+Outlook App 
+	+Select calendar icon 
+	+Add calendar/open calendar 
+	+If it's a user that as to be added/room/Internet 
+	+Select the user/room list 
+	 
+	Adding a shared calendar on MAC 
+	+Outlook App 
+	+Select calendar icon 
+	+File 
+	+Open &Export 
+	+Other user's Folder 
+	+Select the user 
+
+Title: Issues with activation of Microsoft Office 365 SMTP
+Desc: Partner has Microsoft Office 365 SMTP but cannot activate the licenses. 
+ 
+Issue description
+Issues with activation of Microsoft Office 365 SMTP
+ 
+https://docs.microsoft.com/en-us/exchange/mail-flow-best-practices/how-to-set-up-a-multifunction-device-or-application-to-send-email-using-microsoft-365-or-office-365
+
+O365 : How to Delete Mail Contacts using PowerShell and CSV File
+ 
+From < https://social.technet.microsoft.com/wiki/contents/articles/54248.o365-how-to-delete-contacts-using-powershell-and-csv-file.aspx> 
+ 
+The steps below show how we can delete multiple contacts by using a PowerShell script and a CSV file.
+ 
+ Step 1. Create the CSV File
+ 
+Import-Module ExchangeOnlineManagement
+ 
+Connect-ExchangeOnline -Credential $UserCredential -ShowProgress $truE
+ 
+$users = Import-Csv C:\CSV \deletecontact.csv
+ 
+foreach ($user in $users)
+ 
+{
+ 
+$ExternalEmailAddress=$user.ExternalEmailAddress
+ 
+Remove-MailContact $ExternalEmailAddress
+ 
+}
+ 
+Write-Host "DONE RUNNING SCRIPT, CHECK FOR ERRORS"
+ 
+Read-Host -Prompt "Press Enter to exit"
+
+Enabling Legacy TLS SMTP AUTH 
+Resolution steps 
+==================== 
+***To turn Legacy TLS on Admin center*** 
++Resolution 
+Exchange Admin center -> Settings -> Mail Flow -> Turn on use of legacy TLS clients. 
+ 
+ ***To use PowerShell**** 
+============================ 
++Get-ExecutionPolicy 
+{if it's remote signed in} 
++[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
++Install-Module Msonline 
++Install-Module ExchangeOnlineManagement 
++Connect-ExchangeOnline (Login the tenant) 
++Get-TransportConfig | Format-List AllowLegacyTLSClients(To know if it was enabled)  
+Result T/F 
+
++Set-TransportConfig -AllowLegacyTLSClients $true (To enable) 
++Get-TransportConfig | Format-List AllowLegacyTLSClients (To know If it was enabled) 
+Result T/F 
+ 
++Get-ExecutionPolicy 
+{if it's not remote signed in} 
++Set-ExecutionPolicy RemoteSigned 
++[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
++Install-Module Msonline 
++Install-Module ExchangeOnlineManagement 
++Connect-ExchangeOnline (Login the tenant) 
++Get-TransportConfig | Format-List AllowLegacyTLSClients(To know if it was enabled)  
+Result T/F 
++ Set-TransportConfig -AllowLegacyTLSClients $true (To enable) 
++Get-TransportConfig | Format-List AllowLegacyTLSClients (To know If it was enabled) 
+Result T/F 
+ 
+https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdocs.microsoft.com%2Fen-us%2Fexchange%2Fclients-and-mobile-in-exchange-online%2Fopt-in-exchange-online-endpoint-for-legacy-tls-using-smtp-auth&data=05%7C01%7Co365sup4%40microsoft.com%7C5404b5553ad4458ed4d008da70a094b8%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C637946132251766665%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=lOQobah596b1Sj099X5c8A%2BIVXRbEs%2Bw3xyE7wtGnCc%3D&reserved=0 
+
+Title: Users Being Deleted through PowerShell command
+Desc: Two specific users: Andy Givens and Joseph Sullivan were automatically deleted by the system through PowerShell. See an example log I pulled that was attached. The users were deleted a couple times not by a tech or any kind of command we ran. This is problematic as it created absolute downtime for the users in question.
+ 
+Resolutions: This action may be malicious. It is recommended that all users who are Global Admins should change their passwords. Ensure that MFA is enabled for privileged users.
+
+Title: POP3 Error
+Desc: We have a third-party cloud application who are getting errors accessing an Exchange Online mailbox via POP3. 
+ 
+Here's the error:
+“PopCmdResp: -ERR Message corrupted Non-success POP3 response status line Failed to fetch POP3 email” 
+ 
+From < https://beta.rave.office.net/cases/40e1b668-313f-46d1-a2bf-712423c05b46> 
+ 
+Resolutions:
+ 
+NB: Microsoft has announced that Basic Authentication would be discontinued beginning October 2022. "Effective October 1, 2022, we will begin to permanently disable Basic Authentication for Exchange Online in all Microsoft 365 tenants regardless of usage, except for SMTP Authentication." Hence, Modern Authentication has been enabled for all tenants. But this can be disabled using Azure AD. 
+
+Creating a signature on outlook App &Web 
+Resolution Steps 
+========== 
+From EAC  
++login into the EAC > Mail flow > Rules > add icon > Apply disclaimers>Set the signature you want to create { Action: should be wrap, Priority set must be Zero in other to take effect} 
+Note: This rule will only  work for OWA and not Client 
+ 
+From Outlook Client 
+================== 
+Step Taken  
++launch the outlook app>file>Option>Mail>Create or modify signature>Create the signature  
+{Choose the default Email account} 
+ 
+From Outlook Web 
+===================== 
+Step Taken  
++sign on outlook web>sign in with the share mailbox>Setting>View all outlook settings>Compose and reply>create the signature require to  
+ Note: The signature that is created on OWA propagates to the Outlook mail App; but not the one that was created on the Outlook mail app does not propagate to OWA.
+ 
+ 
+ 
+CX unable to login into account 
+Resolution steps 
+=================== 
++Opened the browser in Incognito to access portal.microsoft.com (User was able to login successfully) 
++Purchased a free trial license for Microsoft project plan 
++To assign the license, Users > clicked the username/display name > licenses and apps > selected the License >     save 
+ 
+ 
+ 
+Multifactor authentication 
++When User will not receive multifactor authentication requests.  a {When user don't receive code} 
+ 
+A blocked user will not receive multifactor authentication requests. Authentication attempts for that user will be automatically denied. A user will remain blocked for 90 days from the time they are blocked. To manually unblock a user, click the “Unblock” action. 
+  
++Check on Azure>All service>MFA> Block/Unblock users 
+
+	DLP rules exceptions 
+	I’m interested in using Exception options in DLP Rules - specifically Exceptions based on Keyword in email subject line. I created such rule exceptions in tenant 1, but do NOT have such options in Tenant 2 (ECBDD). Are the DLP policies NOT fully migrated from Exchange in tenant 2 or is something NOT turned ON? 
+	 
+	Resolution: 
+	Steps taken to resolve the issues 
+			· Login into Exchange Admin center> Compliance>Choose location to apply the policy>Teamchat and channel message was ON>turn off Teams chat and channel message>....... 
+	 
+From < https://word-edit.officeapps.live.com/we/wordeditorframe.aspx?ui=en%2DUS&rs=en%2DUS&wopisrc=https%3A%2F%2Ftj83s-my.sharepoint.com%2Fpersonal%2Fhome_work_tunjiola_tk%2F_vti_bin%2Fwopi.ashx%2Ffiles%2Fae957dd6061140cfacabb5841915b5a0&wdenableroaming=1&mscc=0&wdodb=1&hid=76995CA0-6055-2000-42F4-1A5D067676BE&wdorigin=Teams-HL&wdhostclicktime=1660934587062&jsapi=1&jsapiver=v1&newsession=1&corrid=26602051-4909-4fa2-99e0-5b135186e20e&usid=26602051-4909-4fa2-99e0-5b135186e20e&sftc=1&cac=1&mtf=1&sfp=1&instantedit=1&wopicomplete=1&wdredirectionreason=Unified_SingleFlush&rct=Medium&ctp=LeastProtected
+
+Add email to allow list 
+Description: We have email address that we do not want to go to spam folder. 
+Resolution step: 
+LOG IN INTO EAC >Security >Policies $ Rules >Anti-Spam inbound Policy >​Edit Allow and Blocked Senders and Domain >Allow Senders 
+ 
+ 
+ 
+OWA download button for attachments is no longer available 
+ 
+Resolution: 
+Login into Exchange Admin Center >Classic Exchange > Permission> Outlook Web App policies >OwaMailboxPolicy-Default> File access >Turn on Direct file access 
+
+ 
+
+outlook.office.com redirecting to godaddy sso 
+Resolution Steps 1 
++Clear cache on the browser 
++Login in Outlook web  
++Resolution worked  
+ 
+Resolution Steps 2 
++You can try to open an incognito browser window 
++Visit outlook.office.com in the private mode 
++visit  outlook.office365.com to see if it belongs to an office 365 business account 
+ 
+Resolutions Office 365 user gets redirected to sso.godaddy.com when visiting any - Microsoft Community 
+
+Using Exchange Online PowerShell to Check for Modern Authentication:
+ 
+Use Global admin credentials to connect to Exchange Online PowerShell.
+	· Connect-ExchangeOnline
+ 
+Do one of these steps:
+Run the following command to enable modern authentication connections to Exchange Online by Outlook 2013 or later clients:
+	· Set-OrganizationConfig -OAuth2ClientProfileEnabled $true
+ 
+Run the following command to prevent modern authentication connections (force the use of basic authentication connections) to Exchange Online by Outlook 2013 or later clients:
+	· Set-OrganizationConfig -OAuth2ClientProfileEnabled $false
+ 
+To verify that these changes were successful, again using Exchange Online PowerShell, run the following command:
+Get-OrganizationConfig | Format-Table Name,OAuth* -Auto
+
+How to Check if a User Has Read an Email in Exchange Online (Microsoft 365)?
+I tried to slightly modify this PowerShell script to get message read status in Exchange Online user mailboxes.
+After connecting to my Microsoft 365 tenant using the Exchange Online PowerShell module, I checked to see if email read status tracking was enabled in Exchange Online. By default, messageTrackingReadStatusEnabled was enabled for all mailboxes in the tenant.
+	· Get-EXOMailbox -Properties messageTrackingReadStatusEnabled|select UserPrincipalName,messageTrackingReadStatusEnabled
+Get the message trace ID using the command:
+	· Get-MessageTrace -RecipientAddress kokula@x10cs.onmicrosoft.com|fl
+	· Get-MessageTraceDetail -RecipientAddress kokula@x10cs.onmicrosoft.com -MessageTraceId 293cd6db-b280-4440-c49a-08da8b6beecf |fl
+	· Get-OrganizationConfig | Select ReadTrackingEnabled
+ 
+True — enabled, false — disabled.
+
+Enable the email read tracking using the command:
+ 
+	· Set-OrganizationConfig -ReadTrackingEnabled $true
+ 
+Only after running the command, read tracking data appear in the Exchange Server logs.
+Let me remind you that the Exchange transport logs are located in the %ExchangeInstallPath%TransportRoles\Logs\MessageTracking folder. And the most efficient and flexible way to analyze message tracking logs in the Exchange is to use the Get-MessageTrackingLog cmdlet.
+ 
+You can disable read status tracking for specific mailboxes (like, service or shared) using the command below:
+ 
+	· Set-Mailbox support@woshub.com -MessageTrackingReadStatusEnabled $false
+	· Set-Mailbox helpdesk@solarzrenewables.com -MessageTrackingReadStatusEnabled $false
+ 
+ 
+Get-MessageTrackingLog -Sender kokula@x10cs.onmicrosoft.com -MessageSubject "This is a test" -Start (Get-Date).AddHours(-48) -EventId RECEIVE | Select MessageID
+ 
+Here is Get-MessageReadStatusReport.ps1 script:
+[CmdletBinding()]
+param (
+[Parameter( Mandatory=$true)]
+[string]$Mailbox,
+[Parameter( Mandatory=$true)]
+[string]$MessageId
+)
+$output = @()
+#Checking Exchange organization read tracking state
+if (!(Get-OrganizationConfig).ReadTrackingEnabled) {
+throw "Email tracking status is disabled"
+}
+#Getting an email ID
+$msg = Search-MessageTrackingReport -Identity $Mailbox -BypassDelegateChecking -MessageId $MessageId
+#There should be one message
+if ($msg.count -ne 1) {
+throw "$($msg).count emails found with this ID"
+}
+#Getting a report
+$report = Get-MessageTrackingReport -Identity $msg.MessageTrackingReportId -BypassDelegateChecking
+#Getting events
+$recipienttrackingevents = @($report | Select -ExpandProperty RecipientTrackingEvents)
+#Generating a list of recipients
+$recipients = $recipienttrackingevents | select recipientaddress
+#Getting an email status for each recipient
+foreach ($recipient in $recipients) {
+$events = Get-MessageTrackingReport -Identity $msg.MessageTrackingReportId -BypassDelegateChecking `
+-RecipientPathFilter $recipient.RecipientAddress -ReportTemplate RecipientPath
+$outputline = $events.RecipientTrackingEvents[-1] | Select RecipientAddress,Status,EventDescription
+$output += $outputline
+}
+$output
+$directory = "C:\PS\ExchangeReports"
+$filename = 'ReadStatusReport'
+$file = "$filename.csv"
+#Exporting the report to CSV
+$output | Export-Csv -NoTypeInformation -Append -Path "$directory\$file"
+https://github.com/maxbakhub/winposh/blob/main/Exchange/Get-MessageReadStatusReport.ps1
+
+I need user’s login and logout time 
+Resolution: 
+Log on/in time can be viewed from Microsoft Admin Center in Azure Active Directory admin center under Users then Sign-in logs. 
+For Log out/off PowerShell is needed to assess the information. 
+Run---Get-MailboxStatistics -Identity "EmailAddress" | Select LastLogonTime, LastLogoffTime 
+
+Title: This message couldn't be delivered because it's too large. The limit is 0 KB. This message is 3 KB.
+Desc: 
+User was migrated to O365 from Exchange 2013 on-prem. Get this error on sending This message couldn't be delivered because it's too large. The limit is 0 KB. This message is 3 KB. 
+ 
+O365 mailbox shows 
+get-mailbox HYorek@immucor.com | select name,*size* Name MaxSendSize 
+ 
+MaxReceiveSize ---- ----------- -------------- Yorek, Howard 150 MB (157,286,400 bytes) 150 MB (157,286,400 bytes) 
+ 
+However get-remotemailbox shows this?
+get-remotemailbox HYorek@immucor.com | select name,*size* 
+ 
+Name MaxSendSize MaxReceiveSize ---- ----------- -------------- Yorek, Howard 0 B (0 bytes) Unlimited
+From < https://beta.rave.office.net/cases/4d66ecc3-52d1-4a54-ab70-9eb7775fef8f> 
+ 
+Resolutions:
+ 
+Office 365 now supports larger email messages—up to 150 MB | Microsoft 365 Blog
+ 
+ACTION	COMMAND
+Update a single mailbox	Set-Mailbox -Identity alias@domain.com -MaxSendSize 75MB -MaxReceiveSize 75MB
+Update	(“alias”, “alias2”, “alias3”) | % {Set-Mailbox –Identity $_ -MaxSendSize 75MB -MaxReceiveSize 75MB}
+multiple mailboxes 
+Update all mailboxes 	Get-Mailbox | Set-Mailbox -MaxSendSize 75MB -MaxReceiveSize 75MB
+Update the default settings	Get-MailboxPlan | Set-MailboxPlan -MaxSendSize 75MB -MaxReceiveSize 75MB
+(For mailboxes you create in the future.)
+ 
+From < https://www.microsoft.com/en-us/microsoft-365/blog/2015/04/15/office-365-now-supports-larger-email-messages-up-to-150-mb/> 
+
+PowerShell – Howto Update the GAL and OAB in Exchange		
+ 
+Get-GlobalAddressList | Update-GlobalAddressList
+So now that the GAL is updated there could be some users that are using a Offline Address Book (OAB).
+So, what is the PowerShell command to update this?
+ 
+ 
+Get-OfflineAddressBook | Update-OfflineAddressBook
+And last… when you update the OAB you’ll also need to update let the Client Access Server know that there is an updated OAB.
+Also this you can accomplish through PowerShell:
+ 
+Get-ClientAccessServer | Update-FileDistributionService
+ 
+To verify that you've successfully modified a GAL, replace <GAL Name> with the name of the GAL and run the following command in Exchange Online PowerShell to verify the property values:
+ 
+Get-GlobalAddressList -Identity "<GAL Name>" | Format-List Name,RecipientFilterType,RecipientFilter,IncludedRecipients,Conditional*
+		
+		
+		
+		
+	 	
+
+To change the display name of a user in Exchange Online (Office 365), follow these steps:
+1. Log in to the Exchange Admin Center using your administrator credentials.
+2. Navigate to the Recipients section in the Admin Center.
+3. Locate the user from the list and click on their name to view their profile.
+4. Under the Account tab, select Manage contact information.
+5. Update the user’s name and contact information in the Display name field.
+6. Click Save changes to apply the new display name.
+Remember that you must be a global admin to complete these 
+
+Permanently deleting M365 users in powershell.
+
+Connect-msolservice
+
+$Upn = Read-Host -Prompt "Enter user account Email"
+
+Remove-MsolUser -UserPrincipalName $Upn
+
+Remove-MsolUser -UserPrincipalName "$Upn" -RemoveFromRecycleBin
+
+Get-Msoluser -All |Sort displayname | Select DIsplayname,Userprincipalname
+
+Write-host "USER ACCOUNT $Upn PERMANENTLY DELETED"
+
+ 
+
+
+
+ 
+After security defaults are enabled in your tenant, all authentication requests made by an older protocol will be blocked. Security defaults block exchange Active Sync basic authentication as well as authentication using legacy authentication. Go to Azure AD Admin Center as seen above.
+ 
+Examples of applications that commonly or only use legacy authentication are:
+	· Microsoft Office 2013 or older.
+	· Apps using mail protocols like POP, IMAP, and SMTP AUTH.
+See https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults, https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/block-legacy-authentication, https://docs.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-basic-authentication-exchange-online.
+ 
+If you previously disabled Basic authentication for POP or IMAP by using an Exchange Online authentication policy, you can change the policy to allow these protocols. To re-enable Basic authentication for these protocols, run the following PowerShell command:
+ 
+	· Set-AuthenticationPolicy -Identity <Policy Name> -AllowBasicAuthPop -AllowBasicAuthImap
+ 
+Then, you can either wait for the token to be refreshed after it expires, or run the following command to force it to refresh immediately:
+	· Set-User -Identity <user account> -STSRefreshTokensValidFrom $([System.DateTime]::UtcNow)
+ 
+More Information:
+"POP works by contacting your email service and downloading all of your new messages from it. Once they are downloaded onto your PC or Mac, they are deleted from the email service. This means that after the email is downloaded, it can only be accessed using the same computer. If you try to access your email from a different device, the messages that have been previously downloaded won't be available to you. Sent mail is stored locally on your PC or Mac, not on the email server."
+ 
+From < https://beta.rave.office.net/cases/40e1b668-313f-46d1-a2bf-712423c05b46> 
+
+How to allow SMTP with Exchange Online?
+
+I asked this question last week.
+
+Here are 5 options
+
+
+1. My preferred option is to use a 3rd party DMARC compliant provider to send SMTP emails.
+
+This way you don't have to touch a thing in Microsoft 365 and keep your system secure.
+
+SMTP2GO is a great solution and costs only $10/month. There is also a free tier but I don't recommend that. $10/month with proper reporting for 10000 emails is a great deal.
+
+Summarizing the other options and their respective limitations here.
+
+2. Turn off Security Defaults - Doing this is playing with fire and inviting to be attacked. Don't do it. If customer insists, stop working with them. Let them find another consultant 😀 
+
+3. Switch to Conditional Access Policies and exclude exception accounts
+
+This will require Entra ID Premium Licensing and will need to manually recreate CA policies to match the protection offered by Security Defaults.
+
+If customer does not otherwise have a need for Entra ID Premium Licensing, this is not a good option.
+
+4. Direct Send - This is a configuration option which can be used to send emails without requiring Modern Authentication. However, this works only for Internal Email addresses and preferably requires a static IP address to be SPF/DMARC compliant.
+
+5. SMTP Relay - This is difficult to setup and also requires a static IP address to be used. Can be used to send internally and externally. Cannot be used to send from services that use Dynamic IP addresses or DHCP.
+
+From <https://www.linkedin.com/posts/suhail-powerflow_how-to-allow-smtp-with-exchange-online-activity-7130824740780269568-GvNc/> 
+
+How to bulk change the domain name of users in M365 Using PowerShell
+
+To change the domain of multiple users in Office 365 using PowerShell, you can follow these steps:
+	1. Install the Azure AD Module by referring to Microsoft’s official documentation
+		a. 
+	2. In PowerShell, connect to Azure AD by running 
+		a. Install-Module Msonline
+		b. Import-Module MsOnline
+		c. Connect-Msolservice
+		d. then type in your credentials.
+	3. Export your existing users in a .csv file by running:
+		○  Get-MsolUser | Select-Object UserPrincipalName | Export-Csv c:\\users.csv. 
+		○ A .csv file will be created in disk C including only one column: UserPrincipalName.
+	4. Complete the file with another column: EmailAddress. EmailAddress should be the address you want to use.
+	5. Create a ps1 script as below:
+
+
+$Usersdatabase = import-csv "C:\Users\mvelez\users.csv"
+foreach ($record in $Usersdatabase) {
+    $upn = $record.userprincipalname
+    $email = $record.emailaddress
+    Write-host Setting $upn to $email
+    Set-MsolUserPrincipalName -UserPrincipalName $upn -NewUserPrincipalName $email
+    Write-Host \"..\"
+}
+
+NB: Running this command above, requires that you use the PowerShell ISE version
+
+The command below changes the password for the users in the csv file
+$Usersdatabase = import-csv "C:\Users\mvelez\Documents\users.csv"
+foreach ($record in $Usersdatabase) {
+	$upn = $record.userprincipalname
+	$newPassword = "myP@55w0rd!"
+	Set-MsolUserPassword -UserPrincipalName $upn -NewPassword $newPassword
+}
+
+How to add a security group as a delegate to a user mailbox
+
+Add-MailboxPermission -Identity nich@s2y6j.onmicrosoft.com -User <groupName> -AccessRights Full
+
+How to add multiple users to a shared mailbox using PS
+
+$DL = Get-distributiongroupmember GROUPNAME | Select-Object -ExpandProperty Name
+
+foreach ($D in $DL ) {
+
+	Add-MailboxPermission -Identity SHARED_MAILBOX_NAME -User $D -AccessRights ‘FullAccess’
+
+	write-host -FORE yellow “$D is a member of the distribution group GROUPNAME has been given full access permission to SHARED_MAILBOX_NAME mailbox” 
+}
+
+Please name sure to replace GROUPNAME with the name of the distribution group and SHARED_MAILBOX_NAME with the name of the shared mailbox
+
+
+Check the Mailbox Quota for a Mailbox
+
+Get-Mailbox help@uzado.com | Format-List IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,UseDatabaseQuotaDefaults
+
+Get-MailboxStatistics -Identity "keno@s2y6j.onmicrosoft.com" | Select DisplayName, TotalItemSize, StorageLimitStatus, ItemCount
+ 
+Get-Mailbox "keno@s2y6j.onmicrosoft.com" | Format-List IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,UseDatabaseQuotaDefaults
+ 
+Set-Mailbox -Identity help@uzado.com -IssueWarningQuota 49GB -ProhibitSendQuota 49.5GB -ProhibitSendReceiveQuota 50GB -UseDatabaseQuotaDefaults $false
+
+Get-Recipient -Identity keno@s2y6j.onmicrosoft.com | Format-List
+ 
+Start-ManagedFolderAssistant -Identity a539c1a3-3a70-4d0e-be22-a7561960633e -FullCrawl
+
+To get the mailbox size for all users, run the command below:
+Get-mailbox | Get-mailboxstatistics | ft displayname, totalitemsize
+
+For more info, see https://learn.microsoft.com/en-us/exchange/troubleshoot/user-and-shared-mailboxes/increase-or-customize-mailbox-size
+
+
+
+Add all users to Microsoft 365 Groups and thereafter create a team in Microsoft Teams from the Group
+
+Connect-MSOLServices
+Import-csv C:\Document\users.csv | foreach {Add-UnifiedGroupLinks -Identity "All Company" -LinkType Members -Links $_.UserPrincipalName}
+
+#PowerShell to Import Members to office 365 group from CSV
+Import-CSV "C:\Temp\GroupMembers.csv" | ForEach {
+    Add-UnifiedGroupLinks -Identity "M365 Group" -LinkType Members -Links $_.Member
+    Write-host -f Green "Added Member '$($_.Member)' to Office 365 Group"
+}
+
+
+	When setting up automatic replies (auto-reply) in Office 365 admin center, encountering the error message “The operation couldn’t be performed because ‘Jane Doe’ matches multiple entries” can be frustrating. Let’s troubleshoot this issue:
+	 
+	1. PowerShell Solution: You can try configuring the automatic reply using PowerShell cmdlets. Open PowerShell and run the following command, replacing <jony@contoso.com> with the actual email address:
+		○ Set-MailboxAutoReplyConfiguration -Identity <jony@contoso.com> -AutoReplyState Enabled -InternalMessage "Internal auto-reply message." -ExternalMessage "External auto-reply message."
+		○ Set-MailboxAutoReplyConfiguration -Identity tony@contoso.com -AutoReplyState Enabled -InternalMessage "Internal auto-reply message." -ExternalMessage "External auto-reply message." -ExternalAudience All
+		○ Set-MailboxAutoReplyConfiguration -Identity tony@contoso.com -AutoReplyState Scheduled -StartTime "7/10/2018 08:00:00" -EndTime "7/15/2018 17:00:00" -InternalMessage "Internal auto-reply message"
+		○ Set-MailboxAutoReplyConfiguration -Identity edfb6254-9b06-4acb-abba-1d60c18e726d -AutoReplyState Enabled -InternalMessage "Dear Colleagues,   I am currently travelling with limited or no access to emails.   For reservation requests, you may contact:   Malaysia res@asiantrails.com.my mice@asiantrails.com.my   For any emergencies, please call +60(0)193540590. Our Hotline Number is also available through WhatsApp(24hrs/7).   I will be returning to the office on Monday 26 February 2024.   Kind regards,   Julien" -ExternalMessage "Dear Colleagues,   I am currently travelling with limited or no access to emails.   For reservation requests, you may contact:   Malaysia res@asiantrails.com.my mice@asiantrails.com.my   For any emergencies, please call +60(0)193540590. Our Hotline Number is also available through WhatsApp(24hrs/7).   I will be returning to the office on Monday 26 February 2024.   Kind regards,   Julien" -ExternalAudience All
+		○ Set-MailboxAutoReplyConfiguration -Identity tony@contoso.com -AutoReplyState Disabled
+		 
+	This should enable the automatic reply for the specified user.
+	 
+	2. Check for Duplicate Entries: The error occurs when the server doesn’t recognize ‘Jane Doe’ as a unique and valid user. It’s possible that there are multiple entries with the same name. To resolve this, consider using a unique identifier such as the user’s GUID or primarySMTPaddress.
+	 
+	3. Verify User Details: Run the Get-Recipient command to retrieve detailed information about the user.
+		Get-Recipient -Identity user@contonso.com | Format-List
+		This will help identify any conflicting entries and also to get the Exchange GUID of the user
+
+Microsoft 365 Group Not Showing up in Outlook web and desktop
+
+	• Get-UnifiedGroup -Identity "Marketing Department" | Format-List
+	• Set-UnifiedGroup -Identity "Legal Department" -HiddenFromAddressListsEnabled $false
+	• Set-UnifiedGroup -Identity "Legal Department" -HiddenFromExchangeClientsEnabled:$false
+
+How to Automatically Block/Delete emails from a Sub-domain from End users End
+
+The work-around here is to use inbox rule
+cx can create a rule with condition if sender address includes onmicrosoft.com , delete email
+If cx say he need to do it in bulk you could share below cmdlet to create inbox rule for all user mailboxes
+
+$mailboxes = get-mailbox -ResultSize unlimited -RecipientTypeDetails UserMailbox
+	foreach ($mailbox in $mailboxes) {
+		New-InboxRule -Mailbox $mailbox.UserPrincipalName -Name onmicrosoft -FromAddressContainsWords onmicrosoft.com -DeleteMessage $true
+	}
+
+
+
+
+How to Delete Calendar Events Without Notifying Attendees
+
+NB: This can be achieved by deleting the meeting items from the organizer mailbox using Content Search
+ 
+To create and run a Content search, you have to be a member of the eDiscovery Manager role group or be assigned the Compliance Search role in the Microsoft Purview compliance portal. To delete messages, you have to be a member of the Organization Management role group or be assigned the Search And Purge role in the compliance portal For information about adding users to a role group
+
+
+Meanwhile after testing this can also be archived at admin level. For reference below are the commands:
+1. Connect- Exchange online PowerShell
+2. First search and export the results to a folder named search_result in admin's mailbox:
+	• Search-Mailbox -Identity user@contoso -SearchQuery 'kind:meetings AND Subject:"meeting title"' -TargetMailbox "admin@contoso.com" -TargetFolder "search_result" -LogLevel Full -Logonly -SearchDumpster:$false
+3. If in the results you can see the correct meeting item located in the calendar folder, you may use this command to remove it:
+	• Search-Mailbox -Identity user@contoso -SearchQuery 'kind:meetings AND Subject:"meeting title"' -Deletecontent
+
+NB: The Search-Mailbox cmdlet is now deprecated, hence may not work in some instances and need to be replaced with New-ComplianceSearch as shown below
+
+Example below:
+
+
+New-ComplianceSearch -Name "John.Frank" -ExchangeLocation "John.Frank@thirdroadmgmt.com" -ContentMatchQuery 'Subject:"John & Rachel 1 on 1 Check-In"'
+
+New-ComplianceSearch -Name "John.Frank" -ExchangeLocation  "John.Frank@thirdroadmgmt.com" -ContentMatchQuery 'Subject:"John & Rachel 1 on 1 Check-In"' -LogLevel Full
+
+New-ComplianceSearch -Name "John.Frank" -ExchangeLocation  "John.Frank@thirdroadmgmt.com" -ContentMatchQuery 'Subject:"John & Rachel 1 on 1 Check-In"' -LogLevel Basic
+
+New-ComplianceSearchAction -SearchName John.Frank -Purge -PurgeType HardDelete
+
+
+For more information, see the links below.
+https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell?view=exchange-ps
+https://learn.microsoft.com/en-us/purview/ediscovery-search-for-and-delete-email-messages
+https://learn.microsoft.com/en-us/exchange/troubleshoot/compliance/search-mailbox-cmdlet-fails
+
+
+https://learn.microsoft.com/en-us/exchange/troubleshoot/compliance/search-mailbox-cmdlet-fails
+https://learn.microsoft.com/en-us/powershell/module/exchange/new-compliancesearch?view=exchange-ps
+
+
+Summary of all required steps below here.
+
+Launch your PowerShell as Administrator and proceed as follows:
+
+Step 1: Load the Exchange Online PowerShell module
+Import-Module ExchangeOnlineManagement
+
+Step 2: Connect to Security & Compliance PowerShell
+Connect-IPPSSession -UserPrincipalName navin@contoso.com
+
+Step 3: Create a Content Search to find the message to delete
+New-ComplianceSearch -Name <search_name> -ExchangeLocation mailbox1@contoso.com -ContentMatchQuery 'Subject:"Quarterly Results"' -LogLevel Full
+
+See example below to modify for your use-case:
+New-ComplianceSearch -Name "John.Frank" -ExchangeLocation "John.Frank@thirdroadmgmt.com" -ContentMatchQuery 'Subject:"John & Rachel 1 on 1 Check-In"'
+
+Step 4: Delete the content that matches the search criteria in the step 3 above
+New-ComplianceSearchAction -SearchName <search_name> -Purge -PurgeType HardDelete
+
+See the example below and modify for your use case:
+New-ComplianceSearchAction -SearchName John.Frank -Purge -PurgeType HardDelete
+
+Step 5: Disconnect when you're finished
+Disconnect-ExchangeOnline
+
+
+
+PowerShell Cmdlet to Check Who Remove or Added User to Distribution Group Respectively below:
+
+Search-AdminAuditLog -Cmdlets Remove-DistributionGroupMember -StartDate 01/24/2024 -EndDate 02/12/2024
+
+Search-AdminAuditLog -Cmdlets Add-DistributionGroupMember -StartDate 01/24/2024 -EndDate 03/06/2024
+
+Search-AdminAuditLog -Cmdlets New-DistributionGroup -StartDate 01/24/2024 -EndDate 03/06/2024
+
+Search-UnifiedAuditLog -RecordType ExchangeAdmin -Operations Add-DistributionGroupMember -StartDate (Get-Date).AddDays(-30) -EndDate (Get-Date) 
+
+Search-UnifiedAuditLog -RecordType ExchangeAdmin -Operations New-DistributionGroup -StartDate (Get-Date).AddDays(-30) -EndDate (Get-Date) 
+
+
+
+Create a Retention Policy to Purge Data after 7 years for the entire Org
+
+New-RetentionPolicyTag -Name "Mac-Dev-Corp-7years-Delete" -Type All -AgeLimitForRetention 2556 -RetentionAction DeleteAndAllowRecovery
+
+New-RetentionPolicy "RetentionPolicy-MacDevCorp" -RetentionPolicyTagLinks "Mac-Dev-Corp-7years-Delete"
+
+Get-Mailbox -ResultSize unlimited | Set-Mailbox -RetentionPolicy "RetentionPolicy-MacDevCorp"
+
+Get-Mailbox -ResultSize Unlimited | ForEach-Object { Start-ManagedFolderAssistant -Identity $_.UserPrincipalName -FullCrawl }
+
+Get-Mailbox -ResultSize Unlimited | ForEach-Object { Start-ManagedFolderAssistant -Identity $_.ExchangeGuid -FullCrawl }
+
+Unable to send email from shared mailbox hidden from the GAL
+
+When dealing with a shared mailbox that is hidden from the Global Address List (GAL) in Office 365, there are a few considerations to keep in mind:
+	1. Auto-Mapping Behavior:
+		○ Auto-mapping is a feature that automatically adds shared mailboxes to the user’s Outlook profile when they have Full Access permissions.
+		○ If the shared mailbox is hidden from the GAL, auto-mapping may not work as expected. Hence, the user may have or get an NDR when attempting to send from the shared mailbox
+	2. Workaround:
+		a. Assign a basic license such as Exchange Online plan 1 license to the shared mailbox and that would enable the mailbox work independently of the auto-mapping behavior.
+		b. In this case, you may need to convert the shared mailbox to a user mailbox
+
+https://learn.microsoft.com/en-us/exchange/troubleshoot/calendars/cannot-access-shared-calendar-for-hidden-mailbox
+
+
+How to Bypass ATP Scanning using Mail Flow Rule
+
+To bypass ATP Attachment Processing, set up the following mail flow rule:
+1. Log into the Microsoft 365 (formerly Office 365) portal and select "Admin centers" > "Exchange".
+
+2. Select "Mail flow" to expand the settings menu then select "Rules".
+
+3. Click "Add a rule".
+
+4. Click "Create a new rule".
+
+5. Give the rule a name, e.g., "Bypass ATP Attachment Processing - IP Address".
+
+6. Under "Apply this rule if" select "The Sender..." > "IP address is in any of these ranges or exactly matches"
+
+7. Then enter each of Phishing Tackle's IP addresses, clicking the "Add" button for each. (A complete list of our IP addresses can be found here.) Then hit "Save".
+
+8. Under "*Do the following" select "Modify the message properties..." > "set a message header".
+
+9. Edit the properties of this by selecting the "Enter text" buttons:
+
+Use the following entries:
+Set the message header to "X-MS-Exchange-Organization-SkipSafeAttachmentProcessing" and set the value to "1".
+
+10. Click "Next".
+11. Leave all settings in "Set rule settings" as their default values and click "Next".
+
+12. Review your settings and click "Finish".
+
+
+From <https://support.phishingtackle.com/hc/en-gb/articles/360035515271-Bypassing-Microsoft-365-formerly-Office-365-Advanced-Threat-Protection-ATP-Defender-for-Office-By-IP-Address> 
+
+
+To permanently force delete a Microsoft 365 mailbox using PowerShell, follow these steps:
+ 
+	1. Connect to Microsoft Graph PowerShell: Before you start, make sure you have the Microsoft Graph PowerShell module installed, including the Microsoft Graph Beta module. Run the following commands to install both modules:
+Install-Module -Name Microsoft.Graph
+Install-Module -Name Microsoft.Graph.Beta
+
+Then, connect to Microsoft Graph PowerShell using:
+Connect-MgGraph
+	2. Display all soft deleted mailboxes: Retrieve a list of all soft-deleted mailboxes using the following command:
+Get-Mailbox -SoftDeletedMailbox
+	3. Hard delete the mailbox with PowerShell: To permanently delete a mailbox, use the following syntax:
+Get-Mailbox -Identity "user@domain.com" | Remove-Mailbox -PermanentlyDelete -Force -Confirm:$false
+
+Replace "user@domain.com" with the actual mailbox identity.
+	4. Check if the soft deleted mailbox is removed from the recycle bin: Verify that the mailbox has been removed from the recycle bin by running:
+Get-Mailbox -SoftDeletedMailbox
+	5. Verify that the Microsoft 365 mailbox is deleted permanently.
+
+Cmdlet	Usage
+Install-Module -Name Microsoft.Graph	Installation of the module for MS Graph
+ 
+Import-Module -Name Microsoft.Graph
+connect-mggraph	When prompted, sign in to your managed organization.
+
+Connect-MgGraph -Scopes "User.ReadWrite.All","Domain.ReadWrite.All"
+get-mgdomain	Shows your domain names associated with the current organization.
+new-mgdomain -BodyParameter @{Id="<your domain name>"; IsDefault="False"}	Adds the domain name to organization as Unverified (no DNS verification has been performed yet).
+get-mgdomain	The domain name is now included in the list of domain names associated with your managed organization, but is listed as Unverified.
+Get-MgDomainVerificationDnsRecord	Provides the information to put into new DNS TXT record for the domain (MS=xxxxx). Verification might not happen immediately because it takes some time for the TXT record to propagate, so wait a few minutes before considering the -ForceTakeover option.
+ 
+Get-MgDomainVerificationDnsRecord -DomainId "mycompany.com"
+confirm-mgdomain –DomainId "geekmanaged.com" -ForceTakeover	- If your domain name is still not verified, you can proceed with the -ForceTakeover option. It verifies that the TXT record was created and kicks off the takeover process.
+	- The -ForceTakeover option should be added to the cmdlet only when forcing an external admin takeover, such as when the unmanaged organization has Microsoft 365 services blocking the takeover.
+get-mgdomain	The domain list now shows the domain name as Verified.
+ 
+ 
+Admin takeover of an unmanaged directory - Microsoft Entra ID | Microsoft Learn
+
+To generate a report of Out of Office configurations by users in Office 365, you can use PowerShell scripts. 
+
+Here’s a PowerShell command that you can run to get the report:
+
+
+# Connect to Exchange Online PowerShell
+$UserCredential = Get-Credential
+Connect-ExchangeOnline -Credential $UserCredential
+ 
+# Get mailboxes with Out of Office setup
+Get-Mailbox -ResultSize Unlimited | Get-MailboxAutoReplyConfiguration | Where-Object { $_.AutoReplyState -eq "Scheduled" } | Select-Object Identity, AutoReplyState, StartTime, EndTime
+ 
+# Disconnect the session
+Disconnect-ExchangeOnline -Confirm:$false
+

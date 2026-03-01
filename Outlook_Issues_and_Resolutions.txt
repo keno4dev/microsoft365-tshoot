@@ -1,0 +1,331 @@
+Title: Emails are very slow to open
+Desc: Please describe the issue in 2-3 sentences. Include what you're trying to accomplish when the issue occurs. Specific emails cause Outlook to hang for long periods of time. It appears Outlook may be causing these messages to become corrupt. This is not a one-off situation and is occurring company-wide. 
+ 
+Resolutions:
+	· How to Clear the Outlook Cache (lifewire.com)
+			o Save any work and close Outlook.
+			o Press Windows key+R.
+			o In the Run dialog box, enter %localappdata%\Microsoft\Outlook and press Enter.
+			o Double-click the RoamCache folder to view the cache files.
+			o To delete the cache files, press and hold the Shift key while selecting all of the files. Then press the Delete key, or right-click the highlighted files and select Delete
+
+Title: unable to delete emails
+Desc: One of the user is unabel to delete emails from deleted items. The size of recoveryItem is 30GB. Need assistance with emptying the folder
+ 
+Resolutions:
+· Set-OrganizationConfig -ElcProcessingDisabled $false
+· Set-Mailbox -identity jodi.fraser@tlcprimarycare.com.au -ElcProcessingDisabled $false
+· Start-ManagedFolderAssistant -identity jodi.fraser@tlcprimarycare.com.au -HoldCleanup
+· Start-ManagedFolderAssistant -identity jodi.fraser@tlcprimarycare.com.au -FullCrawl
+
+
+
+
+SE LOG 
+==============
+ 
+Troubleshooting/Actions Completed:
++IR Sent to Cx
++Went on a call with CX for a screen-sharing session
++Log into the EAC of CX to see why error 500 exists
++We created a new Global Admin user (test user) with CX approval and log in the CX EAC 
++The error 500 was also there while attempting to log in to the classic EAC
++On the Cx environment, we navigated to Health > Dashboard and noticed that there is a Service Incident on Exchange Online affecting some tenants, hence some users are unable to access Microsoft 365
+ 
+From < https://beta.rave.office.net/cases/083fc40a-f3dc-4bb4-9025-1a9563a42548> 
+ 
+Resolutions
+This happens to be a Service Incident, SI to be resolved from the Microsoft end.
+
+
+
+
+
+
+Outlook 500 Unexpected Error :( An error occurred and your request couldn't be completed. Please try again.
+ 
+When I logon to Exchange online and go to mailboxes I'm getting this error. Outlook 500 Unexpected Error :( An error occurred and your request couldn't be completed. Please try again.
+ 
+From < https://beta.rave.office.net/cases/083fc40a-f3dc-4bb4-9025-1a9563a42548> 
+
+
+Issue Descriptions: Outlook Encryption Button Missing in OWA
+ Resolutions:  https://admin.microsoft.com/AdminPortal/Home#/Settings/OrganizationProfile/:/Settings/L1/ReleasePreferences - Switch to Standard Release and allow 1-2 hours. That can also be achieved by navigating 365 Admin Portal > Settings > Organizational Profile > Release Preferences.
+
+Title: Outlook not showing new emails
+Desc: User cwilliams@innovativelife.org is not seeing new emails populate in their inbox unless account is taken offline and then put back online. computer has been wiped 3 times now and office has been reloaded 3 times...same result. User is not experiencing this issue on their mobile version of outlook and the web version. This experience is only happening on the desktop. There are no rules established that would alter this. You can search for new emails that they are receiving and they will appear but once you go back to the general inbox they are not visible until you take the account offline and online again...please assist. 
+ 
+From < https://beta.rave.office.net/cases/cbc0c37e-775b-4e2d-8d36-60e12f9f29b2> 
+ 
+Resolutions: Go to File > Account Settings > Account Settings
+Double click on the affected mailbox and uncheck Use Cached Exchange Mode to download email to an Outlook data file. 
+ 
+Exchange Desktop client should now display as: Online with: Microsoft Exchange
+
+Title: user cannot set up outlook. it has worked then failed Connectivity test is failing
+	Desc: Connectivity Test Failed, Outlook not opening
+ 
+	Create the REGEDIT keys in the location below;
+ 
+	HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\Identity Create DWORD 32 bit value : 1
+ 
+	· DisableAADWAM Create DWORD 32 bit value : 1
+ 
+	· DisableADALatopWAMOverride Create DWORD 32 bit value: 1
+ 
+	· EnableADAL  Create DWORD 32 bit value: 1
+	Set all the data value to 1 and restart
+ 
+	Below are examples of what to set in the REGEDIT ;
+	[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\Identity] DWORD DisableADALatopWAMOverride Value: 1
+ 
+	[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\Identity] DWORD DisableAADWAM Value:1
+	 
+	[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\Identity] DWORD EnableADAL Value:1
+
+Common Outlook Issues and Commands to run
+ 
+	· Outlook.exe /safe
+	· Outlook.exe /resetnavpane
+	· Outlook.exe /cleanviews
+	· Outlook.exe /cleanrules
+	· Outlook.exe /manageprofile
+	· %USERPROFILE%\AppData\Roaming
+	· Run the 
+		○ Outlook.exe /cleanreminders 
+		○ Outlook.exe /ResetFolders command line. (This step re-creates the Reminders folder and adds any valid entries back in.)
+	 
+	 
+ From < https://www.guidingtech.com/top-ways-to-fix-outlook-not-opening-on-windows-11/> 
+
+Title: Unable to Manage Delegates in Outlook Client
+Desc: 
+CEOs Outlook client is no longer allowing him to open Account Settings ] Delegate Access in the Outlook 365 desktop client. When attempting to open it, he receives an error message that says "The Delegates page is not available. Cannot access Outlook folder." We've already tried running Remove-MailboxFolderPermission -Identity alias:\calendar -ResetDelegateUserCollection and it did not work. We also tried removing and adding a delegate through OWA but it still did not work. After resetting the delegate user collection in PowerShell, we checked EAC and noticed that the user was set to have FullAccess to his own mailbox under delegation. We weren't able to remove that from EAC but were able to from powershell using Remove-MailboxPermission. However, even after removing that, he's still unable to open the Delegate Access menu in the Outlook Client. 
+Issue description
+Unable to Manage Delegates in Outlook Client
+ 
+Resolutions: 
+	Use Windows+R, and then input Outlook /CleanRules, and then press OK. Also, confirm if you can do this in Outlook safe mode using Windows+R, and input Outlook.exe /Safe.
+
+Title: Outlook users keep getting Azure token errors, event 1098
+Desc: This support ticket was created specifically to track an Azure chat
+ 
+Refer to the following articles for resolution to this error 
+Event 1098 and can't create new profiles - Outlook | Microsoft Docs,
+Error 0xCAA5001C Token broker operation failed - Windows Client | Microsoft Docs
+
+Title: Outlook creates contacts automatically
+Desc: A just created account is showing up more than 100000 contacts, also a folder highlighted in the attached screenshot. As mentioned, this a freshly created account, no contacts were added at all. Also please how these folders are showing up in both desktop and OWA version. We logged in with the very same account in a different computer and same thing happened. Delete the folder or the content won't help as it automatically recreates it over and over again.
+ 
+From < https://beta.rave.office.net/cases/6e594aa1-91f6-4b47-9128-ab855cbcf3de> 
+ 
+Currently, as an alternative solution to the issue we are resolving, please let us try to follow the steps below:
+		· Move the affected user to an Un-syncing OU
+		· Run a Delta Synchronization using the "Start-ADSyncSyncCircle -Policytype Delta" command
+		· Then delete the affected user from Azure AD permanently
+		· Run a Delta sync again and the user show appears in Azure AD once again
+Let me know the outcome as soon as the steps above have been carried out.
+ 
+A permanent and more feasible solution is a diagnostic tool which is a third-party that we can use to delete the contacts and the folder permanently. The tool is called MFCMAPI.
+ 
+Here's a link to download it as zipped from Github  https://github.com/stephenegriffin/mfcmapi/releases/tag/22.0.22216.01, extract and run the .exe file on the affected user's computer. Make sure to download the version that is x64 bits as shown below:
+ 
+Release MFCMAPI August 2022 (22.0.22216.01) · stephenegriffin/mfcmapi · GitHub
+ 
+		· NB: Make sure that Outlook Client is opened before running the executable file. If it was not, then close the MFCMAPI tool, open Outlook App and run MFCMAPI again.
+		· Now that Outlook and MFCMAPI is running, on the MFCMAPI tool, go to Session > Logon and select the Outlook profile which should be the only profile available. Then click OK. See the snapshots below.
+ 
+ 
+
+
+
+ 
+		· Drop down the Root - Mailbox, select IPM_SUBTREE > Contacts as shown below:
+ 
+
+
+
+ 
+		· If there are contacts, they should display now. Use Ctrl+A to select all. Then right-click on the selection and use the mode of deletion. Use Permanent delete as shown below. Then click OK. Contacts should now have been deleted permanently.
+ 
+
+
+
+	Adding a Shared Mailbox in Outlook on Mac
+	
+	• Launch Outlook
+	• Click the Tools menu and then click Accounts
+	• In the Account window, select your mailbox account and then click Delegation and Sharing.
+	• In the window, click the Shared with Me tab.
+	• In the Shared with Me window, click the + (plus sign)
+	• In the Choose a Person window, start typing the name of shared mailbox in the search field. Select the shared mailbox from the list of results and then click Add.
+	• Close the Accounts window
+	• Your Shared Email mailbox will appear in the Outlook navigation pane. Note that it may take a while for the mailbox to appear.
+
+Another method of adding a shared mailbox to Outlook on Mac is to follow the steps below:
+
+	• Open Outlook, select the Tools  menu then click Account
+	• Click Advanced below
+	• In the next window, click Delegates then + (plus) button
+	• Start typing in the mailbox that you wish to add to Outlook, then click Add.
+	• Click OK then close the Accounts window.
+	• The shared mailbox should now be automatically displayed on your Outlook
+
+Room mailbox delay in sending confirmations to bookings
+
+I understand that you are experiencing a delay in your room mailbox accepting booking requests. According to Microsoft, this issue can occur when the room mailbox receives an invitation from a third-party mail service through an inbound connector. In this case, the room mailbox treats the invitation as an external message and does not automatically accept or decline the meeting request 
+
+To resolve this issue, Microsoft suggests two methods. The first method is to allow the room mailbox to process requests from external users. This method lets users who are external to the Microsoft 365 organization book the meeting room that’s associated with the room mailbox. However, the risk involved to the organization is minimal because external users aren’t likely to know the email address of the room mailbox. 
+
+In Exchange Online PowerShell, run the following cmdlet:
+Set-CalendarProcessing-Identity<name_of_room_mailbox > -ProcessExternalMeetingMessages$True
+
+The second method is to set the inbound connector to consider external messages as internal. This method has potential security risks because internal messages bypass antispam filtering. You must make sure that the messages that are routed through the third-party mail service are only for internal use. To use this method, the value of the ConnectorType parameter for the inbound connector must be set to OnPremises. 
+
+For more information, see the section about using the TreatMessagesAsInternal parameter in the Set-InboundConnector cmdlet.
+
+ In Exchange Online PowerShell, run the following cmdlet:
+Set-InboundConnector-Identity <name_of_inbound_connector > -TreatMessagesAsInternal$True
+
+To modify the contacts view in Outlook using MFCMAPI, you can follow these steps:
+	1. Download the latest MFCMAPI release from GitHub 1.
+	2. On the Profile menu, select Show Profiles.
+	3. On the Actions menu, select Create Profile.
+	4. Create a new name for the profile, and then choose OK.
+	5. Right-click the new profile, and then on the Services menu, select Add Service.
+	6. Uncheck the “Display Service UI” box, and then choose OK.
+	7. Double-click the newly created profile, and then select the MSEMS service.
+	8. Locate the Exchange Profile section. This can be difficult in Outlook’s MAPI, since in 2010 and above there is no longer the global profile section. To find the Profile section, find the property PR_EMSMDB_SECTION_UID (0x3D150102). The value will be the GUID of the profile section persisted in binary form, which will be used in the subsequent steps.
+	9. Double-click the MSEMS service. Find the Exchange profile section by using the UID from step 7, and then single-click to select the row.
+	10. On the Property menu, select Additional Properties.
+	11. Select Add, and then add the following properties:
+		○ For Outlook 2016: PR_PROFILE_USER_SMTP_EMAIL_ADDRESS_W (0x6641001F) and PR_DISPLAY_NAME_W.
+		○ For Outlook for Office 365: PR_PROFILE_UNRESOLVED_NAME, PR_PROFILE_UNRESOLVED_SERVER, PR_ROH_PROXY_SERVER, PR_ROH_FLAGS, PR_ROH_PROXY_AUTH_SCHEME, PR_PROFILE_AUTH_PACKAGE, and PR_ROH_PROXY_PRINCIPAL_NAME.
+		○ For Exchange 2013: PR_PROFILE_UNRESOLVED_NAME, PR_PROFILE_UNRESOLVED_SERVER, PR_ROH_PROXY_SERVER, PR_ROH_FLAGS, PR_ROH_PROXY_AUTH_SCHEME, and PR_PROFILE_AUTH_PACKAGE.
+	12. Choose OK, and then configure each property according to the table below, depending on the version you are connecting to.
+	13. On the Session menu, select Logon and Display Store, and then select the profile (if it’s not already selected).
+Here is a list of resources that might be helpful:
+	• Create an Outlook profile using MFCMAPI
+	• MAPI View Folders
+	• MFCMAPI Public Folders Contacts
+Please note that modifying the contacts view in Outlook using MFCMAPI requires technical expertise and should be done with caution.
+
+From <https://www.bing.com/search?pglt=43&q=using+mfcmapi+to+modify+the+contacts+view+in+Outlook&cvid=a8cb307e724843a9bcdbe5aec4bd3f7b&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTIzNzM2ajBqMagCALACAA&FORM=ANNTA1&PC=U531> 
+
+
+HOW TO SET OUTLOOK TO SAVE EMAILS AS .EML
+
+To set Outlook to save emails as .eml files, you can use the Windows Registry Editor. However, please note that modifying the registry can be risky and may cause irreversible damage to your system if done incorrectly. 
+
+Therefore, it is recommended that you create a backup of your registry before proceeding.
+
+Here are the steps to follow:
+	1. Open the Registry Editor by pressing the Windows key + R, typing regedit, and then pressing Enter.
+	2. Navigate to the following registry key: HKEY_CURRENT_USER\Software\Microsoft\Office\<version>\Outlook\Options\Mail
+		○ Replace <version> with the version of Outlook you are using. For example, if you are using Outlook 2019, replace <version> with 16.0.
+	3. Right-click on the right-hand side of the window and select New > DWORD (32-bit) Value.
+	4. Name the new value SaveAsEML.
+	5. Double-click on the new value and set its value data to 1.
+	6. Click OK to save the changes and close the Registry Editor.
+
+After following these steps, Outlook will save all emails as .eml files by default. If you want to save an email in a different format, you can do so by selecting Save As from the File menu and choosing the desired format.
+
+Please note that modifying the registry can be risky and may cause irreversible damage to your system if done incorrectly. Therefore, it is recommended that you create a backup of your registry before proceeding 12.
+
+
+Working Action Plan for Outlook Prompting for Password and other Auth Errors
+===============
+	• Delete the Windows credentials in Credential Manager in Control Panel
+	• Cut the folder called OneAuth and IdentityCache out from C:\Users\xxxxx\AppData\Local\Microsoft
+	• Thereafter, optionally create a new Outlook profile in Outlook at File > Account Settings > Manage Profile or run outlook.exe /manageprofiles
+
+
+Outlook is showing disconnected and creating new profile is not working
+ 
+Resolution: Renamed office in "Computer\HKEY_CURRENT_USER\SOFTWARE\Microsoft\Office\" to office.old
+ 
+Restart the PC and Outlook started afresh 
+
+#Outlook saves sent emails in users Sent Items folder instead of Sent Items folder of Shared Mailbox
+
+You can configure the mailbox to save a copy of the message to the “Sent Items” folder of the shared mailbox using Exchange Online (Microsoft 365), Using Exchange PowerShell, run the following commands:
+	• For emails sent as the shared mailbox: 
+		○ Set-mailbox <mailbox name> -MessageCopyForSentAsEnabled $True
+	• For emails sent on behalf of the shared mailbox: 
+		○ Set-mailbox <mailbox name> -MessageCopyForSendOnBehalfEnabled $True
+	· Set-Mailbox SHAREDMAILBOX -MessageCopyForSendOnBehalfEnabled $true -MessageCopyForSentAsEnabled $true
+	○ 
+
+Desktop Outlook Unable to Encrypt Email While OWA works fine
+
+Launch PowerShell as Admin and firstly connect to Exchange Online PowerShell
+Then proceed to connect to AIP service:
+Run :
+	• Connect-AIPService
+	• Get-AipServiceOnboardingControlPolicy
+	• Set-AipServiceOnboardingControlPolicy -UseRmsUserLicense $False -Scope All
+
+Then test the issue again after restarting the user computer.
+
+https://learn.microsoft.com/en-us/powershell/module/aadrm/set-aadrmonboardingcontrolpolicy?view=azureipps
+
+	• Get-AadrmOnboardingControlPolicy
+
+Do not restrict Azure Rights Management for users
+	• Set-AadrmOnboardingControlPolicy -UseRmsUserLicense $False -Scope All
+
+This command allows all users to protect content by using Azure Rights Management. The command applies to Windows clients and mobile devices.
+
+Allow some time for the change to propagate.
+
+Cx Reports that Email Recall in Outlook Shows as Pending
+
+Resolutions:
+I checked the mail flow and looks like the customer has barracuda configured, if messages are being routed first to a 3rd party then back into Exchange Online it will break cloud based message recall.
+The recall feature works only within the tenant, as long as no 3rd parties are configured. The report will also break and show invalid information. 
+ 
+Please see limitations and FAQ in following article: Work with Cloud-based Message Recall | Microsoft Learn
+ 
+Ask the customer to provide an extended message trace for the recalled message so we can check if it was first routed outside (though if barracuda is configured and they have an outbound connector that is likely). 
+
+Take away: Aways check the mail flow in these instances and watch out to see if there is a 3rd party involved in the mail flow.
+
+Title: Encrypted Emails [from Outside the Org] not Opening in Outlook 2019
+Desc: Users get the error message while trying to open the email after prompted to sign in, "Sorry, but we are having trouble signing you in."
+ 
+Resolutions:  Install the MS AIP Package found at https://www.microsoft.com/en-us/download/details.aspx?id=53018
+
+Issue: How To Fix “No Network Connection” (2603) in Outlook
+
+Resolution: 
+I tried network reset and ipconfig /flushdns (windows 11) but issue still persisted. 
+We then ran this command RunDll32.exe InetCpl.cpl,ResetIEtoDefaults from RUN and it fixed the issue.
+
+Outllok Email Print Issues - Cannot Print from Outlook
+
+1.  Try to save the email thread before printing.
+	• Double click email to open it in a separate window
+	• Select "File >> Save As" and save the email as Outlook Message Format - Unicode (the default option)
+	• Navigate to the location of the saved email in File Explorer and double click to open
+	• In the new window, select "File >> Print". You are now able to print the email without errors
+ 
+2. Saving the email to an HTML file, and printing that.
+
+Outlook Booking Apps Not Working
+
+	• Set-ExecutionPolicy RemoteSigned
+	• Install-Module ExchangeOnlineManagement -verbose -Force
+	• Import-Module ExchangeOnlineManagement
+	• Connect-ExchangeOnline
+	• Start-Transcript -Path "C:\transcripts\transcript0.txt" -NoClobber
+	• $formatenumerationlimit=-1 
+	• Get-OrganizationConfig | Fl *EWS*,*Book*
+	• $ImpactedUser = Get-Mailbox user@contonso.com
+	• $ImpactedUser | Get-CasMailbox | FL *EWS*,OWAMailboxPolicy
+	• Get-OwaMailboxPolicy -Identity $ImpactedUser.OWAMailboxPolicy
+	• Stop-Transcript
+
+See the article https://learn.microsoft.com/en-us/microsoft-365/bookings/bookings-in-outlook?view=o365-worldwide
+
+
+

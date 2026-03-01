@@ -1,0 +1,278 @@
+RE Ticket number #‎32760399‎
+Desc: compromised account (admin@meadows.shropshire.sch.uk) is a cloud account and not synced from on-premises.
+I can't reply to ticket as you have blocked sending emails from the domain. The compromised account (admin@meadows.shropshire.sch.uk) is a cloud account and on-premises from on premises. All Global Admin accounts have had MFA enabled. Surely if I delete the inbound connector my ADSync from on-premises will stop working and my synced user accounts will be deleted? I've verified the on-premises Connector and selected on the OU's that should be syncing.
+Issue description
+The compromised account (admin@meadows.shropshire.sch.uk) is a cloud account and not synced from on-premises. Since account was compromised, account was used to send bulk spam messages.
+NB: Because of the compromised admin user account, tenant was blocked from sending external emails until the connectors that the compromised account created have been deleted and MFA enabled for the admin account.
+Resolutions:
+ 
+Run the following diagnostic: 
+Release Tenant Threshold Exceeded Preview & Validate EOP domain
+ 
+From < https://beta.rave.office.net/cases/4e8f4a5e-b7ee-48c9-b7d2-89422017fce9> 
+
+
+
+
+Configure DomainKeys Identified Mail (DKIM)
+DKIM adds an encrypted entry to the message header called the DKIM-Signature entry. When you forward a message, portions of that message's envelope can be stripped away by the forwarding server. 
+ 
+
+
+
+ 
+In the above example, if you had only published an SPF TXT record for your domain, the recipient's mail server could have marked your email as spam and generated a false-positive result. The addition of DKIM in this scenario reduces false positive spam reporting.
+ 
+Because DKIM relies on public-key cryptography to authenticate rather than just IP addresses, it's considered a much stronger form of authentication than SPF. As such, it's recommended that organizations use SPF, DKIM, and DMARC in their deployments.
+ 
+Organizations are currently unable to configure DKIM using the native tools in Exchange Server. You can only configure DKIM when using Exchange Online or a hybrid deployment.
+ 
+DKIM is enabled by default for Microsoft 365 domains that are named <tenant>.onmicrosoft.com. You only need to enable DKIM to any other domains that you've added to your Microsoft 365 tenant.
+ 
+For example, the following two DNS records are required to enable DKIM for the domain contoso.com:
+		· First public DNS domain record:
+				o Host name: selector1._domainkey.contoso.com
+				o Record type: CNAME
+				o Value: selector1-contoso-com._domainkey.contoso.onmicrosoft.com.
+				o TTL: 3600
+		· Second public DNS domain record:
+				o Host name: selector2._domainkey.contoso.com
+				o Record type: CNAME
+				o Value: selector2-contoso-com._domainkey.contoso.onmicrosoft.com.
+				o TTL: 3600
+				
+				
+
+You would then complete the following steps to enable DKIM for the domain:
+		· In the Microsoft 365 admin center, in the left-hand navigation pane, select Show all. Under the Admin centers group, select Security to open the Microsoft 365 Defender portal.
+		· In the Microsoft 365 Defender portal, in the left-hand navigation pane, select Policies & rules.
+		· On the Policies & rules page, select Threat policies.
+		· On the Threat Policies page, under the Rules section, select DKIM.
+		· On the DKIM page, select the domain you wish to configure.
+		· On the detail pane that appears for the selected domain, select the Create DKIM keys button.
+		· In the Publish CNAMEs pop-up window that appears, select the Copy button to copy the CNAMEs that are displayed in the window.
+		· Leave the detail pane open for the selected domain. Publish the copied CNAME records to your DNS service provider. On your DNS provider's website, add CNAME records for DKIM that you want to enable. Ensure the fields are set to the following values for each:
+Copy
+
+Record Type: CNAME (Alias)
+Host: Paste the values you copy from DKIM page.
+Points to address: Copy the value from DKIM page.
+TTL: 3600 (or your provider default)
+		· Return to the detail pane in the Microsoft 365 Defender portal to enable DKIM. To do so, select the Sign messages for this domain with DKIM signatures toggle switch to change its status to Enabled. If you later wish to disable DKIM for the domain, navigate to this pane and select this toggle switch to change the DKIM status to Disabled.
+		· Close the detail pane for the selected domain.
+ 
+From < https://docs.microsoft.com/en-us/learn/modules/manage-anti-malware-anti-spam-policies/7-manage-spoofing-protection?source=learn> 
+
+
+
+
+Skip spam filtering on selective email domains from the same source
+Typically, adding an IP address or address range to the IP Allow List means you trust all incoming messages from that email source. But what if that source sends email from multiple domains, and you want to skip spam filtering for some of those domains, but not others? You can't use the IP Allow List alone to do this, but you can use the IP Allow List in combination with a mail flow rule.
+ 
+For example, the source email server 192.168.1.25 sends email from the domains contoso.com, fabrikam.com, and tailspintoys.com, but you only want to skip spam filtering for messages from senders in fabrikam.com. To do this, use the following steps:
+	1. Add 192.168.1.25 to the IP Allow List.
+	2. Configure a mail flow rule with the following settings (at a minimum):
+			o Rule condition: Apply this rule if > The sender > IP address is in any of these ranges or exactly matches > 192.168.1.25 (the same IP address or address range that you added to the IP Allow List in the previous step).
+			o Rule action: Modify the message properties > Set the spam confidence level (SCL) > 0.
+			o Rule exception: The sender > domain is > fabrikam.com (only the domain or domains that you want to skip spam filtering).
+ 
+From < https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/configure-the-connection-filter-policy?view=o365-worldwide#scenarios-where-messages-from-sources-in-the-ip-allow-list-are-still-filtered> 
+
+
+
+
+
+Skip spam filtering for a CIDR IP outside of the available range
+As described earlier in this article, you can only use a CIDR IP with the network mask /24 to /32 in the IP Allow List. To skip spam filtering on messages from source email servers in the /1 to /23 range, you need to use Exchange mail flow rules (also known as transport rules). . . ., because the messages will be blocked if an IP address in the /1 to /23 CIDR IP range appears on any of Microsoft's proprietary or third-party block lists.
+Now that you're fully aware of the potential issues, you can create a mail flow rule with the following settings (at a minimum) to ensure that messages from these IP addresses will skip spam filtering:
+	· Rule condition: Apply this rule if > The sender > IP address is in any of these ranges or exactly matches > (enter your CIDR IP with a /1 to /23 network mask).
+	· Rule action: Modify the message properties > Set the spam confidence level (SCL) > Bypass spam filtering.
+You can audit the rule, test the rule, activate the rule during a specific time period, and other selections. We recommend testing the rule for a period before you enforce it. For more information, see Manage mail flow rules in Exchange Online.
+ 
+From < https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/configure-the-connection-filter-policy?view=o365-worldwide#scenarios-where-messages-from-sources-in-the-ip-allow-list-are-still-filtered> 
+
+
+
+Quarantine email still showing status as "needs review" after releasing from the Microsoft Defender Portal
+Trying to release one email from Quarantine but the status is showing "needs review"
+From < https://beta.rave.office.net/cases/d01f88a7-fdd0-47e0-905d-45ff46658c59> 
+ 
+Possible Resolution Using PowerShell
+	· To get the quarantined emails from the shell run the command
+Get-QuarantineMessage
+	· To see the properties of one quarantined email run the below command:
+Get-QuarantineMessage –Senderaddress “senderemailid” | fl
+	·  If you need to release all quarantined emails from shell then run the below command
+Get-QuarantineMessage | Release-QuarantineMessage –ReleaseToAll
+ The above command will release all messages which may be spam or transport rule. So if we decide to just release spam or transport rule then run the below commands.
+	· If you need to Release any one email from shell then run the below command
+Get-QuarantineMessage –Senderaddress “senderemail-id” | Release-QuarantineMessage –ReleaseToAll
+ From < https://msexchangeguru.com/2014/01/10/o365-release-quarantine/> 
+ 
+Get-QuarantineMessage -MessageID "<5c695d7e-6642-4681-a4b0-9e7a86613cb7@contoso.com>" | Release-QuarantineMessage -User julia@contoso.com -force -AllowSender
+ 
+The above example uses the Get-QuarantineMessage cmdlet to release the quarantined message with the Message-ID value <5c695d7e-6642-4681-a4b0-9e7a86613cb7@contoso.com> to an original recipient julia@contoso.com.
+ 
+Release-QuarantineMessage -Identity c14401cf-aa9a-465b-cfd5-08d0f0ca37c5\4c2ca98e-94ea-db3a-7eb8-3b63657d4db7 -ReleaseToAll
+
+
+This example releases the quarantined message with the specified Identity value to all original recipients.
+ 
+From < https://docs.microsoft.com/en-us/powershell/module/exchange/release-quarantinemessage?view=exchange-ps> 
+ 
+Resolutions from the Microsoft 365 Defender Portal
+ 
+	· Go to the portal in Microsoft 365 Defender
+	· Go to Email & collaboration > Policies & rules > Threat policies
+	· Under Policies, select Anti-spam. Review the apt inbound anti-spam rule. Be sure to check the Apply the following quarantine policy. Note the policy that is being applied.
+Then navigate back to the Threat policies again. Under Rules, select Quarantine policies. Then review the policies and the actions they perform.
+
+Sending Emails Securely Using PowerShell 
+ 
+# Get the credential
+$credential = Get-Credential
+## Define the Send-MailMessage parameters
+$mailParams = @{
+    SmtpServer                 = 'smtp.office365.com'
+    Port                       = '587'
+    UseSSL                     = $true
+    Credential                 = $credential
+    From                       = 'sender@yourdomain.com'
+    To                         = 'recipient@yourdomain.com', 'recipient@NotYourDomain.com'
+    Subject                    = "SMTP Client Submission - $(Get-Date -Format g)"
+    Body                       = 'This is a test email using SMTP Client Submission'
+    DeliveryNotificationOption = 'OnFailure', 'OnSuccess'
+}
+ 
+$TLS12Protocol = [System.Net.SecurityProtocolType] 'Ssl3 , Tls12'
+[System.Net.ServicePointManager]::SecurityProtocol = $TLS12Protocol
+ 
+## Send the message
+Send-MailMessage @mailParams
+ 
+From < https://beta.rave.office.net/cases/196e0a8c-66c6-4120-9ca1-f02643e73e10> 
+
+Scenarios where messages from sources in the IP Allow List are still filtered
+Messages from an email server in your IP Allow List are still subject to spam filtering in the following scenarios:
+	· An IP address in your IP Allow List is also configured in an on-premises, IP-based inbound connector in any tenant in Microsoft 365 (let's call this Tenant A), and Tenant A and the EOP server that first encounters the message both happen to be in the same Active Directory forest in the Microsoft datacenters. In this scenario, IPV:CAL is added to the message's anti-spam message headers (indicating the message bypassed spam filtering), but the message is still subject to spam filtering.
+	· Your tenant that contains the IP Allow List and the EOP server that first encounters the message both happen to be in different Active Directory forests in the Microsoft datacenters. In this scenario, IPV:CAL is not added to the message headers, so the message is still subject to spam filtering.
+If you encounter either of these scenarios, you can create a mail flow rule with the following settings (at a minimum) to ensure that messages from the problematic IP addresses will skip spam filtering:
+	· Rule condition: Apply this rule if > The sender > IP address is in any of these ranges or exactly matches > (your IP address or addresses).
+	· Rule action: Modify the message properties > Set the spam confidence level (SCL) > Bypass spam filtering.
+ 
+From < https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/configure-the-connection-filter-policy?view=o365-worldwide#scenarios-where-messages-from-sources-in-the-ip-allow-list-are-still-filtered> 
+
+If you're a Microsoft 365 customer with mailboxes in Exchange Online or a standalone Exchange Online Protection (EOP) customer without Exchange Online mailboxes, you use connection filtering in EOP (specifically, the default connection filter policy) to identify good or bad source email servers by their IP addresses. The key components of the default connection filter policy are:
+	· IP Allow List: Skip spam filtering for all incoming messages from the source email servers that you specify by IP address or IP address range. For scenarios where spam filtering might still occur on messages from these sources, see the Scenarios where messages from sources in the IP Allow List are still filtered section later in this article. For more information about how the IP Allow List should fit into your overall safe senders strategy, see Create safe sender lists in EOP.
+	· IP Block List: Block all incoming messages from the source email servers that you specify by IP address or IP address range. The incoming messages are rejected, are not marked as spam, and no additional filtering occurs. For more information about how the IP Block List should fit into your overall blocked senders strategy, see Create block sender lists in EOP.
+	· Safe list: The safe list is a dynamic allow list in the Microsoft datacenter that requires no customer configuration. Microsoft identifies these trusted email sources from subscriptions to various third-party lists. You enable or disable the use of the safe list; you can't configure the source email servers on the safe list. Spam filtering is skipped on incoming messages from the email servers on the safe list.
+ 
+From < https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/configure-the-connection-filter-policy?view=o365-worldwide> 
+
+	Secure by default in Office 365
+	 
+	From < https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/secure-by-default?view=o365-worldwide> 
+	 
+	"Secure by default" is a term used to define the default settings that are most secure as possible.
+	However, security needs to be balanced with productivity. This can include balancing across:
+	        · Usability: Settings should not get in the way of user productivity.
+	        · Risk: Security might block important activities.
+	        · Legacy settings: Some configurations for older products and features might need to be maintained for business reasons, even if new, modern settings are improved.
+	         
+	Microsoft 365 organizations with mailboxes in Exchange Online are protected by Exchange Online Protection (EOP). This protection includes:
+	        · Email with suspected malware will automatically be quarantined. Whether recipients are notified about quarantined malware messages is controlled by the quarantine policy and the settings in the anti-malware policy. For more information, see Configure anti-malware policies in EOP.
+	        · Email identified as high confidence phishing will be handled according to the anti-spam policy action. See Configure anti-spam policies in EOP.
+	For more information about EOP, see Exchange Online Protection overview.
+	 
+	Because Microsoft wants to keep our customers secure by default, some tenants overrides are not applied for malware or high confidence phishing. These overrides include:
+	        · Allowed sender lists or allowed domain lists (anti-spam policies)
+	        · Outlook Safe Senders
+	        · IP Allow List (connection filtering)
+	        · Exchange mail flow rules (also known as transport rules)
+	More information on these overrides can be found in Create safe sender lists.
+	 
+	Secure by default is not a setting that can be turned on or off, but is the way our filtering works out of the box to keep potentially dangerous or unwanted messages out of your mailboxes. Malware and high confidence phishing messages should be quarantined. By default, only admins can manage messages that are quarantined as malware or high confidence phishing, and they can also report false positives to Microsoft from there. For more information, see Manage quarantined messages and files as an admin in EOP.
+	 
+	From < https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/secure-by-default?view=o365-worldwide> 
+	 
+	Manage quarantined messages and files as an admin - Office 365 | Microsoft Learn
+	 
+	Manage submissions - Office 365 | Microsoft Learn
+	 
+
+Alternative for Using SMTP Auth for Applications or User Accounts
+
+Since Security Defaults enforces MFA for user accounts, legacy applications and devices such as printers would still be required to use SMTP since they are not compatible with modern authentication.
+
+Alternatives includes the following:
+	• Use App password. Generate an app password for the user account in question and use it for authentication.
+	• Alternatively as a last resort, get a new tenant entirely devoted to this one account that uses SMTP AUTH where security defaults are turned off. This offers a level of isolation from the production accounts where security defaults are enforced. 
+	
+NB: Unfortunately, this does not work as expected as some tenants has reported that Security Defaults is turned off but MFA is still enforced. 
+
+Note that Security Defaults is not compatible with App Passwords in some instances as some websites or apps or devices would not work unless Security Defaults are turned off. Hence, what can be done? Turn off security defaults and enforce MFA using Per-user MFA settings in the M365 admin center.
+
+“app passwords” were not compatible with ‘security defaults’
+
+How to allow SMTP with Exchange Online?
+
+I asked this question last week.
+
+Here are 5 options
+
+
+1. My preferred option is to use a 3rd party DMARC compliant provider to send SMTP emails.
+
+This way you don't have to touch a thing in Microsoft 365 and keep your system secure.
+
+SMTP2GO is a great solution and costs only $10/month. There is also a free tier but I don't recommend that. $10/month with proper reporting for 10000 emails is a great deal.
+
+Summarizing the other options and their respective limitations here.
+
+2. Turn off Security Defaults - Doing this is playing with fire and inviting to be attacked. Don't do it. If customer insists, stop working with them. Let them find another consultant 😀 
+
+3. Switch to Conditional Access Policies and exclude exception accounts
+
+This will require Entra ID Premium Licensing and will need to manually recreate CA policies to match the protection offered by Security Defaults.
+
+If customer does not otherwise have a need for Entra ID Premium Licensing, this is not a good option.
+
+4. Direct Send - This is a configuration option which can be used to send emails without requiring Modern Authentication. However, this works only for Internal Email addresses and preferably requires a static IP address to be SPF/DMARC compliant.
+
+5. SMTP Relay - This is difficult to setup and also requires a static IP address to be used. Can be used to send internally and externally. Cannot be used to send from services that use Dynamic IP addresses or DHCP.
+
+From <https://www.linkedin.com/posts/suhail-powerflow_how-to-allow-smtp-with-exchange-online-activity-7130824740780269568-GvNc/> 
+
+Unable to Delete a Retention Policy in the Microsoft Purview Compliance Portal
+
+Resolutions: Follow the steps below: 
+	• Connect to Exchange Online Management
+	• Connect-IPPSSession -UserPrincipalName <UPN>
+	• Remove-RetentionCompliancePolicy -Identity "Regulation 123 Compliance"
+	• Remove-RetentionCompliancePolicy -Identity "Regulation 123 Compliance" -ForceDeletion
+		○ If it returns an error then use the retention policy GUID in place of Identity parameter
+	
+
+https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell?view=exchange-ps
+
+https://learn.microsoft.com/en-us/powershell/module/exchange/remove-retentioncompliancepolicy?view=exchange-ps
+
+If the above did not work, then check if the initial config was done using DSC as shown below:
+
+CX is unable to delete a retention policy in the Microsoft Purview Compliance portal. The Policy keeps reappearing after deletion
+
+	• Cx says that the IT personnel who did  the initial setup used Desired State Configuration DSC for the set up of the retention policy and the file was uploaded to Defender. Once the file was removed, they were able to delete the policy conveniently without coming back
+
+
+
+How to Automatically Block Emails from a Sub-domain from End users End
+
+The work-around here is to use inbox rule
+cx can create a rule with condition if sender address includes onmicrosoft.com , delete email
+If cx say he need to do it in bulk you could share below cmdlet to create inbox rule for all user mailboxes
+
+$mailboxes = get-mailbox -ResultSize unlimited -RecipientTypeDetails UserMailbox
+	foreach ($mailbox in $mailboxes) {
+		New-InboxRule -Mailbox $mailbox.UserPrincipalName -Name onmicrosoft -FromAddressContainsWords onmicrosoft.com -DeleteMessage $true
+	}
+
