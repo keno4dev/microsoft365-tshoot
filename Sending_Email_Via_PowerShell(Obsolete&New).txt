@@ -1,0 +1,148 @@
+Sending Email Via PowerShell (Obsolete)
+
+# Make sure that you sign out from Outlook and log back in after generating the app password
+# For an app or a device, use the App Password Generated after Enforcing MFA …
+# … and Turning off Security Defaults where necessary
+
+Set-ExecutionPolicy RemoteSigned
+Install-Module ExchangeOnlineManagement -verbose -Force
+Import-Module ExchangeOnlineManagement
+Connect-ExchangeOnline
+
+# Get the credential of the mailbox to use for the sending of the SMTP email
+$credential = Get-Credential
+## Define the Send-MailMessage parameters
+$mailParams = @{
+    SmtpServer                 = 'smtp.office365.com'
+    Port                            = '587'
+    UseSSL                     = $true
+    Credential                 = $credential
+    From                       = 'sender@yourdomain.com'
+    To                         = 'recipient@yourdomain.com', 'recipient@NotYourDomain.com'
+    Subject                    = "SMTP Client Submission - $(Get-Date -Format g)"
+    Body                       = 'This is a test email using SMTP Client Submission'
+    DeliveryNotificationOption = 'OnFailure', 'OnSuccess'
+}
+ 
+$TLS12Protocol = [System.Net.SecurityProtocolType] 'Ssl3 , Tls12'
+[System.Net.ServicePointManager]::SecurityProtocol = $TLS12Protocol
+ 
+## Send the message
+Send-MailMessage @mailParams
+
+# Use secure connection if available ([bool], optional)
+$UseSecureConnectionIfAvailable = $true
+
+# Authentication ([System.Management.Automation.PSCredential], optional)
+$Credential = [System.Management.Automation.PSCredential]::new("HVE01@m365info.com", (Read-Host -Prompt "Enter password" -AsSecureString))
+
+# SMTP server ([string], required)
+$SMTPServer = "smtp-hve.office365.com"
+
+# Port ([int], required)
+$Port = "587"
+
+# Sender ([MimeKit.MailboxAddress] http://www.mimekit.net/docs/html/T_MimeKit_MailboxAddress.htm, required)
+$From = [MimeKit.MailboxAddress]"HVE01@m365info.com"
+
+# Recipient list ([MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm, required)
+$RecipientList = [MimeKit.InternetAddressList]::new()
+$RecipientList.Add([MimeKit.InternetAddress]"Alexus.Bardot@gmail.com")
+
+# Subject ([string], optional)
+$Subject = [string]"This is the subject"
+
+# Text body ([string], optional)
+$TextBody = [string]"This is the text body"
+
+# Splat parameters
+$Parameters = @{
+    "UseSecureConnectionIfAvailable" = $UseSecureConnectionIfAvailable
+    "SMTPServer"                     = $SMTPServer
+    "Credential"                     = $Credential
+    "Port"                           = $Port
+    "From"                           = $From
+    "RecipientList"                  = $RecipientList
+    "Subject"                        = $Subject
+    "TextBody"                       = $TextBody
+}
+
+# Send message
+Send-MailKitMessage @Parameters
+
+Sending Email Via PowerShell (Using MailKit)
+
+• Set-ExecutionPolicy RemoteSigned
+• Install-Module PowershellGet -Force
+• Install-Module -Name Send-MailKitMessage -Force
+• Import-Module Send-MailKitMessage
+• $credential = Get-Credential
+• Send-MailKitMessage -From test2345@dexterteck.onmicrosoft.com -RecipientList test2345@dexterteck.onmicrosoft.com -Subject 'this is a subject' -Port 587 -Credential $credential -SmtpServer smtp.office365.com
+
+• Set-ExecutionPolicy RemoteSigned
+• Install-Module PowershellGet -Force
+• Install-Module -Name Send-MailKitMessage -Force
+• Import-Module Send-MailKitMessage
+• $credential = Get-Credential
+• Send-MailKitMessage -From ookula@s2y6j.onmicrosoft.com -RecipientList keno@s2y6j.onmicrosoft.com -Subject 'This is a subject' -Port 587 -Credential $credential -SmtpServer smtp.office365.com
+
+Using module Send-MailKitMessage;
+
+#use secure connection if available ([bool], optional)
+$UseSecureConnectionIfAvailable = $true;
+
+#authentication ([System.Management.Automation.PSCredential], optional)
+$Credential = [System.Management.Automation.PSCredential]::new("Username", (ConvertTo-SecureString -String "Password" -AsPlainText -Force));
+
+#SMTP server ([string], required)
+$SMTPServer = "SMTPServer";
+
+#port ([int], required)
+$Port = PortNumber;
+
+#sender ([MimeKit.MailboxAddress] http://www.mimekit.net/docs/html/T_MimeKit_MailboxAddress.htm, required)
+$From = [MimeKit.MailboxAddress]"SenderEmailAddress";
+
+#recipient list ([MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm, required)
+$RecipientList = [MimeKit.InternetAddressList]::new();
+$RecipientList.Add([MimeKit.InternetAddress]"Recipient1EmailAddress");
+
+#cc list ([MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm, optional)
+$CCList = [MimeKit.InternetAddressList]::new();
+$CCList.Add([MimeKit.InternetAddress]"CCRecipient1EmailAddress");
+
+#bcc list ([MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm, optional)
+$BCCList = [MimeKit.InternetAddressList]::new();
+$BCCList.Add([MimeKit.InternetAddress]"BCCRecipient1EmailAddress");
+
+#subject ([string], optional)
+$Subject = [string]"Subject";
+
+#text body ([string], optional)
+$TextBody = [string]"TextBody";
+
+#HTML body ([string], optional)
+$HTMLBody = [string]"HTMLBody";
+
+#attachment list ([System.Collections.Generic.List[string]], optional)
+$AttachmentList = [System.Collections.Generic.List[string]]::new();
+$AttachmentList.Add("Attachment1FilePath");
+
+#splat parameters
+$Parameters = @{
+    "UseSecureConnectionIfAvailable" = $UseSecureConnectionIfAvailable    
+    "Credential" = $Credential
+    "SMTPServer" = $SMTPServer
+    "Port" = $Port
+    "From" = $From
+    "RecipientList" = $RecipientList
+    "CCList" = $CCList
+    "BCCList" = $BCCList
+    "Subject" = $Subject
+    "TextBody" = $TextBody
+    "HTMLBody" = $HTMLBody
+    "AttachmentList" = $AttachmentList
+};
+
+#send message
+Send-MailKitMessage @Parameters;

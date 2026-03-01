@@ -26,7 +26,13 @@
 | 16 | Outlook Issues & Resolutions | [16-outlook-issues-resolutions.md](docs/16-outlook-issues-resolutions.md) |
 | 17 | Security & Compliance in Exchange | [17-security-compliance-exchange.md](docs/17-security-compliance-exchange.md) |
 | 18 | Exchange Online Mailbox Auditing | [18-exchange-mailbox-auditing.md](docs/18-exchange-mailbox-auditing.md) |
-| 19 | PowerShell Scripts | [scripts/](scripts/) |
+| 19 | Audit Log Configuration | [19-audit-log-configuration.md](docs/19-audit-log-configuration.md) |
+| 20 | Bulk Password Change for Migration | [20-bulk-password-change-migration.md](docs/20-bulk-password-change-migration.md) |
+| 21 | Enterprise Best Practices — Azure AD / Entra ID | [21-enterprise-best-practices-azuread-entraid.md](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| 22 | General Guide for Running PowerShell Scripts | [22-general-guide-powershell-scripts.md](docs/22-general-guide-powershell-scripts.md) |
+| 23 | Generating Exchange Online Usage Reports | [23-generating-exo-usage-reports.md](docs/23-generating-exo-usage-reports.md) |
+| 24 | Sending Email via PowerShell | [24-sending-email-via-powershell.md](docs/24-sending-email-via-powershell.md) |
+| 25 | PowerShell Scripts | [scripts/](scripts/) |
 
 ---
 
@@ -89,6 +95,39 @@
 | Who accessed a mailbox? Non-owner access report | [18 - Mailbox Auditing](docs/18-exchange-mailbox-auditing.md) |
 | Export mailbox audit logs | [18 - Mailbox Auditing](docs/18-exchange-mailbox-auditing.md) |
 | Search Unified Audit Log via PowerShell | [18 - Mailbox Auditing](docs/18-exchange-mailbox-auditing.md) |
+| Cannot open audit log XML export in OWA | [19 - Audit Log Config](docs/19-audit-log-configuration.md) |
+| Grant user access to mailbox audit logs via Purview | [19 - Audit Log Config](docs/19-audit-log-configuration.md) |
+| Default audit logging behaviour in Exchange Online | [19 - Audit Log Config](docs/19-audit-log-configuration.md) |
+| Admin audit log — who made changes to mailboxes? | [19 - Audit Log Config](docs/19-audit-log-configuration.md) |
+| Bulk reset passwords before migration | [20 - Bulk Password Change](docs/20-bulk-password-change-migration.md) |
+| Force password change on next sign-in for all users | [20 - Bulk Password Change](docs/20-bulk-password-change-migration.md) |
+| Reset passwords from CSV via PowerShell | [20 - Bulk Password Change](docs/20-bulk-password-change-migration.md) |
+| Reset passwords using Microsoft Graph (modern) | [20 - Bulk Password Change](docs/20-bulk-password-change-migration.md) |
+| Azure AD Connect ImmutableId mismatch | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| Soft-match vs hard-match AD Connect user | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| Hard-match on-premises AD user to cloud Azure AD user | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| UPN soft-match not working — ImmutableId blocking | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| Distribution group not syncing to Microsoft 365 | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| Attribute Editor tab missing in ADUC | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| Required ports for Active Directory communication | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| FSMO role query and transfer commands | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| Uninstall / reinstall Azure AD Connect manually | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| AD Connect sync error — no-start-ma / dll-exception | [21 - Azure AD Best Practices](docs/21-enterprise-best-practices-azuread-entraid.md) |
+| Set-ExecutionPolicy for PowerShell scripts | [22 - PowerShell Guide](docs/22-general-guide-powershell-scripts.md) |
+| Install MSOnline / Microsoft Graph / Teams modules | [22 - PowerShell Guide](docs/22-general-guide-powershell-scripts.md) |
+| Log PowerShell session output to file | [22 - PowerShell Guide](docs/22-general-guide-powershell-scripts.md) |
+| Diagnose Teams Auto Attendant via PowerShell | [22 - PowerShell Guide](docs/22-general-guide-powershell-scripts.md) |
+| Get mailbox storage statistics for all users | [23 - EXO Usage Reports](docs/23-generating-exo-usage-reports.md) |
+| Find mailboxes inactive for 30+ days | [23 - EXO Usage Reports](docs/23-generating-exo-usage-reports.md) |
+| Export all Microsoft 365 Group members to CSV | [23 - EXO Usage Reports](docs/23-generating-exo-usage-reports.md) |
+| Get top email senders / recipients | [23 - EXO Usage Reports](docs/23-generating-exo-usage-reports.md) |
+| EXO reporting cmdlets deprecated — use Graph instead | [23 - EXO Usage Reports](docs/23-generating-exo-usage-reports.md) |
+| Send email from PowerShell script | [24 - Sending Email via PS](docs/24-sending-email-via-powershell.md) |
+| SMTP AUTH error 5.7.57 from PowerShell | [24 - Sending Email via PS](docs/24-sending-email-via-powershell.md) |
+| Send-MailMessage deprecated — modern alternative | [24 - Sending Email via PS](docs/24-sending-email-via-powershell.md) |
+| Send email with attachment, CC, BCC via PowerShell | [24 - Sending Email via PS](docs/24-sending-email-via-powershell.md) |
+| Send HTML email from PowerShell | [24 - Sending Email via PS](docs/24-sending-email-via-powershell.md) |
+| Send email without user credentials (app registration) | [24 - Sending Email via PS](docs/24-sending-email-via-powershell.md) |
 
 ---
 

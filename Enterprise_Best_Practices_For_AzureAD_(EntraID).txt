@@ -1,0 +1,348 @@
+Enterprise Best Practices For Azure AD / Active Directory Summit - Part 1
+https://www.netwrix.com/azure_ad_summit.html
+
+Enterprise Best Practices For Azure AD Active Directory Summit - Part 2
+https://www.netwrix.com/azure_ad_summit_pt2.html
+
+Enterprise Best Practices For Azure AD Active Directory Summit - Part 3
+https://www.netwrix.com/azure_ad_summit_pt3.html
+
+
+Things to consider when creating user accounts in Azure AD
+Here are some design considerations for creating and deleting user accounts. Think about what user account conventions and processes might be required by your organization.
+	• Consider naming conventions. Establish or implement a naming convention for your user accounts. Apply conventions to user account names, display names, and user aliases for consistency across the organization. Conventions for names and aliases can simplify the bulk create process by reducing areas of uniqueness in the CSV file. A convention for user names could begin with the user's last name followed by a period, and end with the user's first name, as in Sawyer-Miller.Aran@contoso.com.
+	• Consider using initial passwords. Implement a convention for the initial password of a newly created user. Design a system to notify new users about their passwords in a secure way. You might generate a random password and email it to the new user or their manager.
+	• Consider strategies for minimizing errors. View and address any errors, by downloading the results file on the Bulk operation results page in the Azure portal. The results file contains the reason for each error. An error might be a user account that's already been created or an account that's duplicated. Generally, it's easier to upload and troubleshoot smaller groups of user accounts.
+
+
+DCDiag /Test:DNS /e /v
+
+
+The following ports are required for basic AD communication:
+	• TCP/UDP port 53: DNS.
+	• TCP/UDP port 88: Kerberos authentication.
+	• TCP/UDP port 135: RPC.
+	• TCP/UDP port 137-138: NetBIOS.
+	• TCP/UDP port 389: LDAP.
+	• TCP/UDP port 445: SMB.
+	• TCP/UDP port 464: Kerberos password change.
+	• TCP/UDP port 636: LDAP SSL.
+
+Convert ObjectGuid to ImmutableId
+ [Convert]::ToBase64String([guid]::New("f7cc07d7-7c15-447d-876d-c01b0e5a9e38").ToByteArray())
+
+Convert ImmutableId to ObjectGuid
+[Guid]([Convert]::FromBase64String("1wfM9xV8fUSHbcAbDlqeOA=="))
+
+
+
+Modifying Active Directory Object Attributes with ADSI Edit
+The ADSI Edit (Active Directory Service Interface Edit) console is a lower-level tool for managing and editing objects and attributes in LDAP directories (including those in the Active Directory database sections, NTDS.dit). The ADSI Edit console can be used to edit attributes, objects, and directory partitions that are not available through standard Active Directory snap-in MMCs, fix Active Directory errors, and various service objects that use AD to store their configuration (Exchange, SCCM).
+In order to open the ADSI Edit snap-in, press the Win + R and run the adsiedit.msc command.
+The first time you launch the ADSI console, you will be prompted to select the Active Directory naming context you want to connect to (Actions -> Connect to). The following sections are available:
+• Default naming context
+• Configuration
+• RootDSE
+• Schema
+In our example, we will be using the ADSI console as a user/computer attribute editor, so we need to connect to the Default naming context.
+You will see your tree structure of containers and OUs in AD. Here you can find the desired Active Directory object and open its properties. You will see the object Attribute Editor window. Here you can view or change the values of user/computer/group attributes.
+Be especially careful when editing AD partitions, schema properties, or object attributes using ADSI Edit. This tool allows you to write changes directly to the database, schema, and AD configuration, and bypass the simplest checks and restrictions of the standard MMC consoles. We recommend backing up Active Directory before making changes to the directory using adsiedit.msc.
+
+From <https://woshub.com/active-directory-attribute-editor/> 
+
+Soft-Match/Hard-Match in O365
+
+Powershell Script to check the ImmutableID attribute in cloud:
+
+Install-Module MSOnline
+
+Import-Module MSOnline
+
+Connect-MsolService    (Enter Global Admin Credentials of Office 365)
+
+Get-msoluser -UserPrincipalName mike@contoso.com | Select ImmutableID
+
+Clearing the ImmutableID is done using the Powershell command:
+
+Set-MSOLUser -UserPrincipalName mike@contoso.com -ImmutableID "$null"
+
+Deleting the newly created Sync with AD User with UPN & Numbers:
+
+Remove-msoluser -RemoveFromRecycleBin mike@contoso.com
+Remove-msoluser -UserPrincipalName mike@contoso.com -RemoveFromRecycleBin -Force
+
+Finally run the AAD Connect Sync and it will not perform the Soft-Match with the user ajey@akginfotech.com and the same In-Cloud User will become Sync with AD User.
+
+
+
+METHOD 1: Hard Match Process:
+Make the On-Prem User’s ObjectGuid (from Ldife) and Synced with AD User Immutable Id same. 
+
+Get the Object Guid Value of all users from Local Active Directory Users & Computers:
+
+Open Powershell with Run as Administrator Mode:
+
+ldifde -f objectguid.txt -r "(Userprincipalname=*)" -l "objectGuid, userPrincipalName"
+
+The above command will export Objectguid values of all users in C:\ in Objectguid.txt notepad file.
+
+Open the notepad file and search the user using his User’s Principal Name field in the file. Copy his objectGUID value in notepad.
+
+Connect Powershell with Office 365:
+
+Connect-MsolService (Enter Global Admin Creds of Office 365)
+
+Set-MsolUser -UserPrincipalName ajey.gupta@akginfotech.com -ImmutableID De7ppAsUlkup05KZVqXtUATd==
+
+Note: De7ppAsUlkup05KZVqXtUATd== is the Object Guid value from On-Prem AD from ldifde command. We forcefully set the user object guid value to an In-Cloud User and re-run the Sync.
+
+Run a delta sync 
+
+	• Start‐ADSyncSyncCycle ‐PolicyType Delta 
+
+	• Start‐ADSyncSyncCycle ‐PolicyType Initial
+
+… on the local AD powershell
+
+Allow a sync for about 10 mins.
+
+After performing the above step, an In-Cloud user will hard-match with an On-Premise user and finally it will Sync with AD User in the Office 365.
+
+
+
+METHOD 2:
+This is what I have used before for hard match if the mailbox is already in the cloud.
+
+Connect-MsolService
+
+$ADUser = "systemadmin"
+
+$365User = "systemadmin@aroopatech.com"
+
+$guid =(Get-ADUser $ADUser).Objectguid
+
+$immutableID=[system.convert]::ToBase64String($guid.tobytearray())
+
+Set-MsolUser -UserPrincipalName $365User -ImmutableId $immutableID
+
+Run a delta sync Start‐ADSyncSyncCycle ‐PolicyType Delta on the local AD powershell
+Allow a sync for about 10 mins.
+
+
+METHOD 3:
+Provided below is the step-by-step guide on how to carry out this solution:
+
+Remove on-premise Identity from syncing with O365
+Remove on-premise Identity from O365 and Remove from Recycle bin
+Launch PowerShell as administrator and run the following Commands
+
+Set-ExecutionPolicy RemoteSigned
+$credential = Get-Credential
+
+Input admin credentials for Office 365 and run the following command
+
+Import-Module MsOnline
+Connect-MsolService -Credential $credential
+
+Run the following command:
+
+“$ADGuidUser = Get-ADUser -Filter * | Select Name,ObjectGUID | Sort-Object Name | Out-GridView”
+
+Select the on-premise user from the Grid
+Run the following command in powershell to convert GUID to the immutable ID format:
+
+“$UserimmutableID = [System.Convert]::ToBase64String($ADGuidUser.ObjectGUID.tobytearray())” 
+
+Run the next commnand:
+
+$OnlineUser = Get-MsolUser | Select UserPrincipalName,DisplayName,ProxyAddresses,ImmutableID | Sort-Object DisplayName | Out-GridView -Title "Select The Office 365 Online User To HardLink The AD User To" -PassThru”
+
+Select the Online identity to match on-premise identity
+Run 
+
+“Set-MSOLuser -UserPrincipalName $OnlineUser.UserPrincipalName -ImmutableID $UserimmutableID”
+
+Set the Online identity with the new immutable ID
+
+Run “Set-MSOLuser -UserPrincipalName $OnlineUser.UserPrincipalName -ImmutableID $UserimmutableID”
+
+Check the immutable id matches
+Run the following two lines and confirm IDs Match
+“Write-Host "AD Immutable ID Used" $UserimmutableID”
+“Write-Host "Office365 UserLinked" $Office365UserQuery.ImmutableId”
+
+Run a delta sync 
+Start‐ADSyncSyncCycle ‐PolicyType Delta 
+
+Start‐ADSyncSyncCycle ‐PolicyType Initial
+
+on the local AD powershell
+
+Allow a sync for about 10 mins.
+
+LAST RESORT:
+
+If after the hard-match or soft-match has been done and no changes, then do the following:
+	• Uninstall the AD Connect tool from the DC and reinstall a new one
+
+Azure AD Sync: Unable to install the Synchronization Service
+
+When you try to remove the Azure Active Directory Sync tool , the uninstallation may not be successful, either because you did not uninstall the right product in the Programs and Features menu , or because the installation is corrupt.
+In these cases, you may see the following error in the Azure Active Directory wizard: "  Unable to install the Synchronization Service. Please see the event log for additional details .
+
+
+Here are some ways to manually uninstall Azure Active Directory Sync.
+Uninstalling products
+In the Programs and Features menu , uninstall all of the following products:
+With Azure Active Directory Connect
+	• Microsoft Azure Active Directory Connect Tool
+	• Microsoft Azure AD Sync
+	• Forefront Identity Manager Windows Azure Active Directory Connector
+	• Microsoft SQL Server 2012 Express LocalDB
+	• Microsoft SQL Server 2012 Native Client
+	• Microsoft SQL Server 2012 Command Line Utilities
+	• Microsoft Online Services Sign-in Assistant (restart required)
+	• Windows Azure Active Directory Module for Windows Powershell
+
+With Azure Active Directory Sync (standalone)
+	• Microsoft Azure AD Connection Tool
+	• Microsoft Azure AD Sync
+	• Forefront Identity Manager Windows Azure Active Directory Connector
+	• Microsoft SQL Server 2012 Express LocalDB
+	• Microsoft SQL Server 2012 Native Client
+	• Microsoft SQL Server 2012 Command Line Utilities
+	• Microsoft Online Services Sign-in Assistant (restart required)
+	• Windows Azure Active Directory Module for Windows Powershell
+Deleting folders
+The uninstall wizard does not remove some folders, which can cause problems during a reinstallation.
+You must delete the following folders:
+With Azure Active Directory Connect
+	• C: \ Program Files \ Microsoft Azure Active Directory Connect
+	• C: \ Program Files \ Microsoft Azure AD Sync
+
+With Azure Active Directory Sync (standalone)
+	• C: \ Program Files Azure AD Connection Tool
+	• C: \ Program Files \ Microsoft Azure AD Sync
+Deleting the scheduled task
+You must also delete the scheduled task that starts synchronizing objects in the cloud.
+	1. Open the Task Scheduler
+	2. In the Task Scheduler Library container , right-click Azure AD Sync Scheduler  and click Delete
+
+Cleaning the registry
+Open the registry as an administrator and delete the following keys if they still exist:
+With Azure Active Directory Connect
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ AD Sync
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Azure AD Connect
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Microsoft SQL Server Local DB
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ MSOLCoExistence
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Windows \ CurrentVersion \ Uninstall \ MicrosoftAzureADConnectionTool
+	• HKEY_LOCAL_MACHINE \ SYSTEM \ CurrentControlSet \ Services \ ADSync
+	• HKEY_LOCAL_MACHINE \ SYSTEM \ CurrentControlSet \ Services \ EventLog \ Application \ AzureActiveDirectoryDirectorySyncTool
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Tracing \ AzureADConnect_RASAPI32
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Tracing \ AzureADConnect_RASMANCS
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Tracing \ DirectorySyncTool_RASAPI32
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Tracing \ DirectorySyncTool_RASMANCS
+With Azure Active Directory Sync (standalone)
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ AD Sync
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Microsoft SQL Server Local DB
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ MSOLCoExistence
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Windows \ CurrentVersion \ Uninstall \ MicrosoftAzureADConnectionTool
+	• HKEY_LOCAL_MACHINE \ SYSTEM \ CurrentControlSet \ Services \ ADSync
+	• HKEY_LOCAL_MACHINE \ SYSTEM \ CurrentControlSet \ Services \ EventLog \ Application \ AzureActiveDirectoryDirectorySyncTool
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Tracing \ DirectorySyncTool_RASAPI32
+	• HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Tracing \ DirectorySyncTool_RASMANCS
+You can now restart the installation of Azure Active Directory Connect.
+
+From <https://itshi-tech.blogspot.com/2019/11/azure-ad-sync-unable-to-install.html> 
+
+Azure Active Directory Sync does not sync distribution groups in on-prem AD?
+
+Yes, you can use Azure AD Connect to sync a local Distribution Group. Please perform the following steps:
+	• Open Active Directory Users and Computers. On the top menu click on view and select Advanced Features.
+	• Find the Distribution List that is not syncing to your Office 365 tenant > right click the Distribution List > select Properties > click on the attribute editor tab.
+	• There are a couple attributes that must be filled out in order for it to Synchronize to Office 365.
+	• Attributes: mail, displayName – if they do not have any data, fill it in. Once completed click Apply, then Ok.
+	• Open Azure AD Connect, select Customize synchronization options to sync the Organization Unit again.
+		○ Or alternatively, run the cmdlet below:
+			§ Start‐ADSyncSyncCycle ‐PolicyType Initial
+
+See https://answers.microsoft.com/en-us/msoffice/forum/all/azure-active-directory-sync-does-not-sync/c31df7dd-9308-4d04-819e-3e5e63d3d00a
+
+
+Transferring FSMO Roles to Another Domain Controller
+
+𝑵𝒆𝒕𝑫𝒐𝒎 𝑸𝒖𝒆𝒓𝒚 𝑭𝑺𝑴𝑶
+This command will show the FMSO roles ownership
+
+𝑹𝒆𝒑𝑨𝒅𝒎𝒊𝒏 /𝑺𝒉𝒐𝒘𝑹𝒆𝒑𝒍
+This command will show the replication between domain controllers
+
+𝑹𝒆𝒑𝑨𝒅𝒎𝒊𝒏 /𝑹𝒆𝒑𝒍𝑺𝒖𝒎𝒎𝒂𝒓𝒚
+This command will show the replication summary
+
+𝑹𝒆𝒈𝑺𝒗𝒓32 𝑺𝒄𝒉𝒎𝒎𝒈𝒎𝒕.𝒅𝒍𝒍
+This command will register the schema management so that you can access the MMC.
+
+6- Windows Server 2022 Transferring FMSO Roles from one Domain Controller to another
+
+
+
+
+Why we are not able to see " Attibute Editor " in users properties , we have Windows server 2019 Statndard edition version 1809 (OS build 17763.2114) ?
+
+Why we are not able to see " Attribute Editor " tab in users properties is missing , we have Windows server 2019 Standard edition version 1809 (OS build 17763.2114) ?
+
+
+https://learn.microsoft.com/en-us/answers/questions/562406/why-we-are-not-able-to-see-attibute-editor-in-user
+
+
+
+******Attribute Editor tab missing in Active Directory Users and Computers search********
+Problem:
+If you search for a user account, you don´t see the Attribute Editor tab in the properties of the user account.
+First the "Advanced Features“ have to be activated in the “Active Directory Users and Computers” console. Just select View and click on Advanced Features.
+
+Using a LDAP Query:
+Right-click Saved Queries and click the New-Query option
+Type in a name for your saved query, such as "Search SamAccount"
+
+Click the Define Query button
+Under the Find drop-down list, select Custom Search
+Click the Advanced tab
+
+Type in your query
+(objectcategory=person)(samaccountname=tim.buntrock)
+
+Using the group trick:
+Search for a user
+Click on the member of tab
+Open a group from user
+Close the user properties tab
+Search for the user in the group member tab and double click him
+Now you should see the Attribute Editor tab
+Using Active Directory Administrative Center instead of ADUC
+If you are using the AD Administrative Center you can directly access the Attribute Editor after a search.
+Reference:http://directoryadmin.blogspot.com/2019/02/attribute-editor-tab-missing-in-active.html
+
+From <https://learn.microsoft.com/en-us/answers/questions/562406/why-we-are-not-able-to-see-attibute-editor-in-user> 
+
+#Set AD Connect to Auto Upgrade
+
+Set-ADSyncAutoUpgrade is a cmdlet that can be used to enable or disable the automatic upgrade feature of AAD Connect
+
+	• Set-ADSyncAutoUpgrade -AutoUpgradeState enabled
+
+#Unable to Connect to MSOL Service 
+#Cx reports that they get got the 'Get-MsolUserRole' Error when trying to access the Azure AD Connect tool
+
+https://learn.microsoft.com/en-us/schooldatasync/blocking-powershell-for-edu
+
+https://learn.microsoft.com/en-us/schooldatasync/blocking-powershell-for-edu#blocking-the-msol-module
+
+
+
+Azure AD/Entra Connect Sync Error
+
+For an unknown amount of time, our Azure AD Connect has had a couple of errors - no-start-ma on the Delta Import, and stopped-extension-dll-exception on the export (both for the onmicrosoft.com domain).  I've tested adding a new user, and the new user does NOT get synced to M365.
+
+https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/reference-connect-tls-enforcement#powershell-script-to-check-tls-12

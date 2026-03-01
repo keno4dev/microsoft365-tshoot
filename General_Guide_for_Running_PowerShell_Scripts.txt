@@ -1,0 +1,29 @@
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned		
+ 
+From < https://www.emailarchitect.net/easendmail/kb/powershell.aspx?cat=0> 
+ 
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+Azure Active Directory (MSOnline)
+ 
+From < https://docs.microsoft.com/en-us/powershell/azure/active-directory/install-msonlinev1?source=recommendations&view=azureadps-1.0> 
+ 
+Install the Azure AD Module
+        · Install-Module MSOnline
+ 
+Connect to Azure AD
+        · $Msolcred = Get-credential
+        Connect-MsolService -Credential $MsolCred
+
+
+Please refer to the following PowerShell commands and revert with transcripts:
+
+Open PowerShell as an administrator
+
+	• Start-Transcript -Path "C:\transcripts\transcript0.txt" -NoClobber
+	• Set-ExecutionPolicy RemoteSigned
+	• Install-Module -Name MicrosoftTeams -Force -AllowClobber
+	• Connect-MicrosoftTeams
+#Please replace XXXXXX with affected AA's object ID in the following command
+	• Get-CsAutoAttendant -Identity "XXXXXXXXXXX"
+	• Stop-Transcript

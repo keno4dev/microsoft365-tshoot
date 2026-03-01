@@ -1,0 +1,36 @@
+PowerShell is a great tool for making different reports. Here are some useful Office 365 reports done via PowerShell:
+• Details about all mailboxes:
+Get-mailbox | get-MailboxStatistics
+
+• A list of all mailboxes that haven’t been logged into during the last 30 days:
+Get-Mailbox –RecipientType 'UserMailbox' | Get-MailboxStatistics | Sort-Object LastLogonTime | Where {$_.LastLogonTime –lt ([DateTime]::Now).AddDays(-30) } | Format-Table DisplayName, LastLogonTime
+
+• A report on the highest volume senders and recipients:
+Get-MailTrafficTopReport
+
+• A report on all groups and their members:
+
+function Get-AllO365Members
+{
+    Try
+    {   
+     $O365Groups=Get-UnifiedGroup
+        foreach ($O365Group in $O365Groups) 
+        { 
+            Write-Host "Group Membership: " $O365Group.DisplayName -ForegroundColor Green
+            Get-UnifiedGroupLinks –Identity $O365Group.Identity –LinkType Members
+            Write-Host
+        } 
+    }
+    catch [System.Exception]
+    {
+        Write-Host -ForegroundColor Red $_.Exception.ToString()   
+    } 
+}
+Get-AllO365Members
+
+
+Note that most of the reporting cmdlets were deprecated in January 2018 and replaced by the new MS Graph Reporting API. Therefore, some reports are now available only in the Office 365 Security & Compliance Center.
+As you can see, Office 365 management with PowerShell is fast and easy, as it is in Microsoft Windows Server. Don’t forget to audit all the changes you make to your Office 365 environment; it will help you troubleshoot and recover from issues faster.
+
+From <https://blog.netwrix.com/2018/09/19/ten-most-useful-office-365-powershell-commands/> 
