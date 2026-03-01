@@ -1,0 +1,168 @@
+ # When using Teams PowerShell Module to enable Enterprise Voice for a user
+
+Set-ExecutionPolicy RemoteSigned
+Install-Module MicrosoftTeams -verbose -force
+Import-Module MicrosoftTeams 
+Connect-MicrosoftTeams 
+Set-CsPhoneNumberAssignment -Identity user3@contoso.com -EnterpriseVoiceEnabled $true
+
+Set-CsPhoneNumberAssignment -Identity will.roberts@tabspenarth.org.uk -EnterpriseVoiceEnabled $true
+
+From <https://www.itcapture.com/how-to/enable-users-for-enterprise-voice-online-and-phone-system-voicemail/> 
+
+NB: This configuration must be enabled for call queue to work
+
+Set-CsPhoneNumberAssignment -Identity user1@contoso.com -PhoneNumber +12065551234 -PhoneNumberType CallingPlan
+
+Set-CsPhoneNumberAssignment -Identity user1@contoso.com -PhoneNumber <phone number> -PhoneNumberType DirectRouting
+
+Set-CsPhoneNumberAssignment -Identity user1@contoso.com -PhoneNumber +12065551234 -PhoneNumberType CallingPlan
+
+
+#Unable to add guest user to private channel
+
+As I know, you can only add existing team member to a Private channel. Please make sure that you have invited the guest user as a member to team and then explicitly add user to private channel.
+
+https://answers.microsoft.com/en-us/msteams/forum/all/unable-to-add-guest-user-to-private-channel/86dcd615-67b2-4cf3-b01a-23c9006920c6
+
+
+
+# Unable to send attachments in Teams
+If your organization chooses a third party for content storage, you need to turn off the NativeFileEntryPoints parameter in the Teams Files policy. This parameter is enabled by default, which shows the option to upload content from OneDrive or SharePoint to Teams chats or channels.
+
+Set-CsTeamsFilesPolicy -Identity Global -NativeFileEntryPoints Disabled
+
+See https://learn.microsoft.com/en-us/microsoftteams/turn-off-teams-native-file-upload-policy for more information
+
+
+
+#To clear Teams cache on Windows, you need to
+
+	1. Right-click on the Teams icon in the taskbar and select Quit.
+	2. Press the Windows key + R to open the Run dialog box.
+	3. Type %appdata%MicrosoftTeams and click OK.
+	4. Delete all the files and folders in the directory.
+	5. Reopen Teams..
+
+https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/teams-administration/clear-teams-cache
+
+
+
+#Unable to Open PowerPoint File from Microsoft Teams
+
+We cleared the Office Application temp files in the below path
+C:\Users\YOUR_USER_NAME\AppData\Local\Microsoft\Office
+
+
+
+#How to collect Teams Diagnostic Logs
+
+Need help troubleshooting the Microsoft Teams client? While in context of Microsoft Teams app, hit CTRL+ALT+SHIFT+1 and you'll get a diagnostic log for Teams for Windows in your DOWNLOAD folder with a lot of useful info that informs how Teams loads and recent activity.
+
+
+
+#User complains that after a user's detail such as display name is updated in the M365 admin center, it is not yet changes in Teams desktop app
+
+As shown in the link below, it is by design. 
+
+Classic Teams has a caching scheme that's designed for capacity and performance optimization. The Teams service caches general user information for up to three days. The Teams client also caches general user information locally. Some data, such as display name and telephone number, can be cached for up to 28 days in the client. Profile photos can be cached for up to 60 days.
+https://learn.microsoft.com/en-us/microsoftteams/troubleshoot/teams-administration/user-information-not-updated
+
+
+
+
+
+PowerShell script to disable channel creation for all Teams in Microsoft Teams
+
+Install-Module -Name MicrosoftTeams -Force -AllowClobber
+$credential = Get-Credential
+Connect-MicrosoftTeams -Credential $credential
+
+Get-CsTeamsChannelsPolicy | Format-Table Identity, AllowPrivateChannelCreation
+Set-CsTeamsChannelsPolicy -Identity Global –AllowPrivateChannelCreation $False
+
+
+# Fetch all Teams
+$teams = Get-Team
+
+foreach ($team in $teams) {
+    # Disable private channel creation
+    Set-Team -GroupId $team.GroupId -AllowCreatePrivateChannels $false
+    # Disable standard channel creation
+    Set-Team -GroupId $team.GroupId -AllowCreateUpdateChannels $false
+    Write-Host "Disabled channel creation for Team: $($team.DisplayName)"
+}
+
+Write-Host "Private channel creation disabled for all Teams."
+
+Save the above script to a .ps1 file (e.g., DisableChannelCreation.ps1) and run it in PowerShell:
+	.\DisableChannelCreation.ps1
+
+
+
+
+Disable Channel Creation for all users except Admins or Owners
+
+# Connect to Microsoft Teams
+
+Set-ExecutionPolicy RemoteSigned
+Install-Module -Name MicrosoftTeams -Force -AllowClobber -Verbose
+Import-Module MicrosoftTeams
+Connect-MicrosoftTeams
+ 
+Get-CsTeamsChannelsPolicy | Format-Table Identity, AllowPrivateChannelCreation
+Set-CsTeamsChannelsPolicy -Identity Global –AllowPrivateChannelCreation $False
+
+
+# Fetch all Teams
+$teams = Get-Team
+
+foreach ($team in $teams) {
+    Write-Host "Processing Team: $($team.DisplayName)"
+
+    # Get team members
+    $members = Get-TeamUser -GroupId $team.GroupId
+
+    foreach ($member in $members) {
+        # Check if the user is an owner (administrator)
+        if ($member.Role -ne "Owner") {
+            Write-Host "Disabling channel creation for non-admin user: $($member.User)"
+
+            # Disable private channel creation for non-owners
+            Set-Team -GroupId $team.GroupId -AllowCreatePrivateChannels $false
+            # Disable standard channel creation for non-owners
+            Set-Team -GroupId $team.GroupId -AllowCreateUpdateChannels $false
+        } else {
+            Write-Host "User $($member.User) is an admin, leaving channel creation enabled."
+        }
+    }
+}
+
+Write-Host "Channel creation settings updated for all Teams."
+
+Guest Users Unable to Join Townhall Meetings
+
+	• Town hall meetings doesn't allow cross tenant join into a private meeting
+	• As a workaround, you can try adding the external user either as an attendee or add the guest user to a teams group/channel in the home account.
+
+Issue: Microsoft Store Missing on Windows PC
+
+**Reset the Microsoft Store cache
+Press the Windows Logo Key + R to open the Run dialog box,
+
+wsreset.exe -i
+
+and then select OK.
+
+Note:
+A blank Command Prompt window will open, and after about ten seconds the window will close, and Microsoft Store will open automatically.
+
+**Reinstall the Microsoft Store app
+Press Windows key + X
+Click and Run Windows Terminal (Admin)
+Copy and paste the command below then hit Enter:
+
+Get-AppXPackage *WindowsStore* -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+
+
+Restart your computer.

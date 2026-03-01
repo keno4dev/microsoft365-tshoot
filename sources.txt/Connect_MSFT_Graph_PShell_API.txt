@@ -1,0 +1,27 @@
+GET /teams/{teamId}/schedule/shifts
+
+	• Install-Module Microsoft.Graph.Beta.Teams -verbose
+	• Import-Module Microsoft.Graph.Beta.Teams
+
+	• Connect-MgGraph -Scopes "User.Read.All", "Group.ReadWrite.All"
+	• Get-MgBetaTeamScheduleShift -TeamId $teamId 
+ 
+To get the TeamId used for the Shift, run the following cmdlet
+	• Get-Team | Select-Object DisplayName, GroupId
+
+From Graph get the output of:
+GET /teams/{teamId}/schedule/shifts
+
+https://graph.microsoft.com/v1.0/teams/d747dc60-9745-439c-8e09-e588cd240ea5/schedule/shifts
+
+Install-Module Microsoft.Graph.Identity.SignIns -verbose
+
+Import-Module Microsoft.Graph.Identity.SignIns
+
+Connect-MgGraph -scope @('User.Read.All')
+Get-MgPolicyAuthorizationPolicy
+
+
+https://developer.microsoft.com/en-us/graph/graph-explorer
+
+

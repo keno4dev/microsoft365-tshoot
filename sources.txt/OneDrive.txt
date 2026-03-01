@@ -1,0 +1,34 @@
+
+Unable to Setup OneDrive in Windows Desktop
+ 
+Press Windows key + R and paste the %localappdata%\Microsoft\OneDrive\onedrive.exe /reset command.
+ 
+If the reset command does not help, please follow the bellow steps to proceed with a fresh OneDrive installation:
+ 
+	1. Open Command Prompt in Administrator mode: click on Windows + type CMD > right click on Command Prompt > Run as admin
+	2. Type in taskkill /f /im OneDrive.exe to terminate any OneDrive processes and hit Enter.
+	3. Then type in either  %SystemRoot%\System32\OneDriveSetup.exe /uninstall if you’re using 32-bit Windows 10 or %SystemRoot%\SysWOW64\OneDriveSetup.exe /uninstall if you’re using 64-bit Windows 10 and hit Enter.
+	4. After that Go to Regedit on this path: HKEY_CURRENT_USER\Software\Microsoft\OneDrive
+	5. Delete the OneDrive folder
+	6. Open file explorer, go to: C:\Users\WindowsUser (the one used by the customer)
+	7. Delete the OneDrive (OneDrive - CompanyName) and SharePoint (CompanyName) folders
+	8. After that restart the Pc and install One Drive latest version from this link:
+	9. https://go.microsoft.com/fwlink/?linkid=860984
+	10. When choosing the OneDrive folder, do not chose "use this folder", change the folder to a different one.
+ 
+After reinstalling the OneDrive using the link above:
+ 
+Open CMD with "run as admin" and run the command
+Chkdsk C: /f
+ 
+restart PC after that
+after restart, use the sync option from the browser to try and sync OneDrive to local app
+
+
+How to Collect OneDrive Logs in Windows
+
+Collect OneDrive logs by executing “CollectSyncLogs.bat”
+	• If OneDrive was installed for all users in the machine where the issue is reproduced, “CollectSyncLogs.bat” is located in the folder with higher version inside “C:\Program Files (x86)\Microsoft OneDrive”
+	• If OneDrive was installed for current user, “CollectSyncLogs.bat” is located in the folder with the higher version inside %localappdata%\microsoft\onedrive
+
+C:\Users\OghenekenoHikiahOk\AppData\Local\Microsoft\OneDrive\logs

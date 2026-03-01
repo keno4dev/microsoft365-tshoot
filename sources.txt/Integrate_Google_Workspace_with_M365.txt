@@ -1,0 +1,46 @@
+Can we use both Google Workspace and Microsoft 365?
+
+This is a question I get asked more often than I'd expect.
+
+One use case may be that one department wants to use Google and another wanting to use Microsoft 365.
+
+A second use case is when the customer wants emails to be on Google but wants to be able to send from and receive invites to the Microsoft Teams calendar.
+
+It is possible to achieve this. This is how you can do it.
+
+1️⃣ Modify the SPF record for the domain to allow emails from both Google and Microsoft
+
+Example: 
+"v=spf1 include:_spf[dot]google[dot]com include:spf[dot]protection[dot]outlook[dot]com -all"
+
+2️⃣ Add DKIM records for both Google and Microsoft DKIM Selectors
+
+This now enables both Google and Microsoft to be able to send from the domain.
+
+3️⃣ Now let's setup MX DNS records for 2 subdomains - google[dot]companydomain[dot]com and 
+microsoft[dot]companydomain[dot]com
+
+4️⃣ On the Google subdomain, add the MX records pointing to Google.
+5️⃣ On the Microsoft subdomain, add the MX records pointing to Microsoft.
+
+6️⃣ . 1️⃣ : If the primary domain MX is pointed to google, you can setup the forwarding from Google to the Microsoft subdomain address. To do this,
+
+6️⃣ . 1️⃣ . 1️⃣ - On the Google Admin Portal, Go to Apps-> Google Workspace-> Gmail -> Routing - > Email forwarding using recipient address map and setup the forwarding address as the respective Microsoft subdomain address for each Google user, check the box for Also Route to original recipient and save
+
+6️⃣ . 1️⃣ . 2️⃣ - Test send an email to the Google user and see if it is getting forwarded to Microsoft in addition to being visible in Google. Setup is now complete.
+
+6️⃣ . 2️⃣ : If the primary domain MX is pointed to Microsoft, you can setup the forwarding from Microsoft to the Google subdomain address. To do this,
+
+6️⃣ . 2️⃣ . 1️⃣ : Go to the Microsoft Admin Portal, Launch the Security Admin Center and Allow External forwarding in the Anti Spam Outbound policy.
+
+6️⃣ . 2️⃣ . 2️⃣ : Now add the Google subdomain address as the forwarding address for each user and also check the box to Also keep a copy in this mailbox.
+
+6️⃣ . 2️⃣ . 3️⃣ : Test send an email to the Google user and see if it is getting forwarded to Google in addition to being visible in Microsoft. Setup is now complete.
+
+This assumes that the users are duplicated in both systems and they are using parts of both systems. This is the second type of use case
+
+If we'd like to make this work without duplicating the users where some users are on Google and some on Microsoft, potentially separate domains but would like visibility of each other's calendar, we could also setup Google Calendar Interop.
+
+If your org is currently using both M365 and Google Workspace and you are struggling to make them work together, send me a DM and we will help you sort it ou
+
+From <https://www.linkedin.com/feed/update/urn:li:activity:7216788314878554112/> 

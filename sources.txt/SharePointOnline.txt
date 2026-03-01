@@ -1,0 +1,99 @@
+Valuable Resource for SharePoint Management
+
+https://www.sharepointdiary.com/
+
+How to change the domain of a SharePoint site
+
+	• First, download the SharePoint Online management module from here https://www.microsoft.com/en-us/download/details.aspx?id=35588
+	• Alternatively, install after running PS as administrator using the command below:
+		○ Install-Module -Name Microsoft.Online.SharePoint.PowerShell
+		○ https://learn.microsoft.com/en-us/powershell/sharepoint/sharepoint-online/connect-sharepoint-online
+	• Connect-SPOService -Url "https://contoso-admin.sharepoint.com"
+	• Start-SPOTenantRename -DomainName <NewDomainName> -ScheduledDateTime <YYYY-MM-DDTHH:MM:SS> [-Confirm]
+
+
+For changes in the site URL see https://learn.microsoft.com/en-us/sharepoint/change-site-address
+
+
+
+
+
+To assess the storage usage in users’ OneDrive notebooks within the site collection /Documents/Notebooks/, you can take advantage of the OneDrive usage reports available in Microsoft 365. These reports provide insights into the total number of files, storage used, and other relevant details for each user’s OneDrive.
+	Here are a few ways to achieve this:
+	1. Using Microsoft 365 Admin Center:
+		○ Log in to the Microsoft 365 Admin Center.
+		○ Navigate to Reports and then select Usage.
+		○ Under OneDrive, you’ll find the OneDrive usage report.
+		○ In the report, you can view details such as the current number of files, storage used, and more for each user’s OneDrive.
+	• You can also export the report data to a CSV file for further analysis.
+	2. PowerShell Script:
+		○ While your existing PowerShell command retrieves site collection information, it doesn’t specifically drill down into individual users’ OneDrive storage usage.
+		○ To get more granular insights, consider using the following PowerShell steps:
+		○ First, retrieve the list of users with valid OneDrive licenses using Get-SPOSite.
+		○ Then, for each user, use the Get-SPOSite cmdlet with the user’s OneDrive URL to fetch detailed information.
+		○ Export the combined data to a CSV file for analysis.
+	3. Additional PowerShell Command:
+	• Alternatively, install after running PS as administrator using the command below:
+		○ Install-Module -Name Microsoft.Online.SharePoint.PowerShell
+		○ Import-Module Microsoft.Online.SharePoint.Powershell
+		○ https://learn.microsoft.com/en-us/powershell/sharepoint/sharepoint-online/connect-sharepoint-online
+	• Connect-SPOService -Url "https://s2y6j-admin.sharepoint.com"
+
+
+	• To get the OneDrive usage report for all users, you can use the following PowerShell commands:
+# Retrieve all OneDrive sites
+	$sites= Get-SPOSite -IncludePersonalSite $true -Limit all -Filter "Url -like '-my.sharepoint.com/personal/'"
+	# Loop through each site and get detailed information
+	foreach($site in $sites) {
+	    $siteUrl= $site.Url
+	    $siteDetails = Get-SPOSite -Identity $siteUrl | Select-Object URL, Owner, StorageQuota, StorageUsageCurrent, LastContentModifiedDate
+	   # Add the site details to the array
+	   $siteInfoArray += $siteDetails
+	}
+	# Process $siteInfo as needed (e.g., export to CSV)
+	$csvFilePath = "C:\File.csv"
+	$siteInfoArray | Export-Csv -Path $csvFilePath -NoTypeInformation
+	
+	• This script will fetch details for each user’s OneDrive, including storage usage, owner, and last content modification date.
+	 
+	
+	
+	Here is another step to take below:
+	 
+	# Retrieve all OneDrive sites
+	$sites = Get-SPOSite -IncludePersonalSite $true -Limit all -Filter "Url -like '-my.sharepoint.com/personal/'"
+	 
+	# Initialize an empty array to store site information
+	$siteInfoArray = @()
+	 
+	# Loop through each site and get detailed information
+	foreach ($site in $sites) {
+	   $siteUrl = $site.Url
+	   $siteDetails = Get-SPOSite -Identity $siteUrl | Select-Object URL, Owner, StorageQuota, StorageUsageCurrent, LastContentModifiedDate
+	 
+	   # Add the site details to the array
+	   $siteInfoArray += $siteDetails
+	}
+	 
+	# Export the array to a CSV file
+	$csvFilePath = "C:\File.csv"
+	$siteInfoArray | Export-Csv -Path $csvFilePath -NoTypeInformation
+	 
+	# Confirm the export
+	Write-Host "Site information exported to $csvFilePath"
+
+How to Change the SharePoint Site Root Site
+
+#Set Parameters
+$AdminCenterURL="https://crescent-admin.sharepoint.com"
+$SourceSiteURL = "https://crescent.sharepoint.com/sites/intranet" #Newly created root site
+$TargetSiteURL = "https://crescent.sharepoint.com/" #Existing Intranet Site URL - Current SharePoint Root site
+$ArchiveSiteURL = "https://crescent.sharepoint.com/sites/Intranet-archive" #Backup for existing Intranet
+ 
+#Connect to SharePoint Online
+Connect-SPOService -Url $AdminCenterURL
+ 
+#Start Site Swap
+Invoke-SPOSiteSwap -SourceUrl $SourceSiteURL -TargetUrl $TargetSiteURL -ArchiveUrl $ArchiveSiteURL
+
+For more info see https://www.sharepointdiary.com/2019/08/sharepoint-online-change-root-site-to-modern.html and https://learn.microsoft.com/en-us/powershell/module/sharepoint-online/invoke-spositeswap?view=sharepoint-ps
