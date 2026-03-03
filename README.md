@@ -7,7 +7,8 @@
 ## 🛑 Try Self-Help First — Before Contacting Microsoft Support
 
 > **This repository exists so you can resolve your Microsoft 365 issue yourself — quickly, without waiting in a support queue.**
->
+> *NB: Some snapshots would be added in the coming days/weeks to compliment some of the steps where necessary*
+
 > All documented resolutions align with standard Microsoft Support procedures. Search the [Quick Reference table](#-quick-reference-by-symptom) below for your symptom, follow the steps, and validate the fix before escalating.
 >
 > **If self-remediation is unsuccessful**, or if the issue requires tenant-level intervention, account recovery, or billing changes — Microsoft 365 subscribers are entitled to **free technical support**. See [doc 26 — Contacting Microsoft Support](docs/26-contacting-microsoft-support.md) for all contact methods, phone numbers, the Quick Assist remote tool, and guidance on what to prepare before you call.
